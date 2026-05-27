@@ -1,0 +1,72 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]
+  - generic [ref=e4]:
+    - navigation [ref=e5]:
+      - generic [ref=e6]:
+        - button "JSON" [ref=e7] [cursor=pointer]
+        - button "Base64" [ref=e8] [cursor=pointer]
+        - button "URL" [ref=e9] [cursor=pointer]
+        - button "时间戳" [ref=e10] [cursor=pointer]
+        - button "正则" [ref=e11] [cursor=pointer]
+        - button "SQL" [ref=e12] [cursor=pointer]
+        - button "二维码" [ref=e13] [cursor=pointer]
+      - combobox "Language" [ref=e14] [cursor=pointer]:
+        - option "English"
+        - option "中文" [selected]
+        - option "Français"
+        - option "Deutsch"
+        - option "Español"
+        - option "Italiano"
+        - option "Português"
+        - option "Русский"
+        - option "Nederlands"
+        - option "Tiếng Việt"
+        - option "ไทย"
+        - option "Magyar"
+    - main [ref=e15]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e22]:
+            - button "格式化" [ref=e23] [cursor=pointer]
+            - button "对比" [ref=e24] [cursor=pointer]
+          - generic [ref=e26]:
+            - textbox "等待输入..." [ref=e27]
+            - generic: 0 字符 / 0 行
+          - generic [ref=e28]:
+            - button "格式化" [ref=e29] [cursor=pointer]
+            - button "压缩" [ref=e30] [cursor=pointer]
+            - button "验证" [ref=e31] [cursor=pointer]
+            - button "清除" [ref=e32] [cursor=pointer]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - heading "输出结果" [level=3] [ref=e35]
+            - generic [ref=e36]:
+              - generic [ref=e37]:
+                - button "树形" [ref=e38] [cursor=pointer]
+                - button "原始" [ref=e39] [cursor=pointer]
+              - button "🔍" [ref=e40] [cursor=pointer]
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - generic: 🔍
+              - textbox "搜索键名或值..." [ref=e43]
+            - generic [ref=e44]:
+              - button "▲" [ref=e45] [cursor=pointer]
+              - generic [ref=e46]: 0 / 0
+              - button "▼" [ref=e47] [cursor=pointer]
+          - generic [ref=e51]: 等待输入...
+          - generic [ref=e52]:
+            - button "⊞ 全部展开" [ref=e53] [cursor=pointer]
+            - button "⊟ 全部折叠" [ref=e54] [cursor=pointer]
+            - button "📋 复制结果" [ref=e55] [cursor=pointer]
+    - generic [ref=e56]:
+      - generic:
+        - link "提交 Issue 🐛":
+          - /url: https://github.com/YOUR_USERNAME/devtoolbox/issues/new
+          - generic: 提交 Issue
+          - generic: 🐛
+        - button "清除缓存 🗑":
+          - generic: 清除缓存
+          - generic: 🗑
+      - button "⚙" [ref=e57] [cursor=pointer]:
+        - generic [ref=e58]: ⚙
+  - complementary [ref=e59]

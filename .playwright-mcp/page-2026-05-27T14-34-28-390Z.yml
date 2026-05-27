@@ -1,0 +1,54 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]
+  - generic [ref=e4]:
+    - navigation [ref=e5]:
+      - generic [ref=e6]:
+        - button "JSON" [ref=e7] [cursor=pointer]
+        - button "Base64" [ref=e8] [cursor=pointer]
+        - button "URL" [ref=e9] [cursor=pointer]
+        - button "时间戳" [ref=e10] [cursor=pointer]
+        - button "正则" [ref=e11] [cursor=pointer]
+        - button "SQL" [ref=e12] [cursor=pointer]
+        - button "二维码" [ref=e13] [cursor=pointer]
+      - combobox "Language" [ref=e14] [cursor=pointer]:
+        - option "English"
+        - option "中文" [selected]
+        - option "Français"
+        - option "Deutsch"
+        - option "Español"
+        - option "Italiano"
+        - option "Português"
+        - option "Русский"
+        - option "Nederlands"
+        - option "Tiếng Việt"
+        - option "ไทย"
+        - option "Magyar"
+    - main [ref=e15]:
+      - generic [ref=e115]:
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: 左侧 JSON
+            - generic [ref=e119]:
+              - textbox "等待输入..." [ref=e120]
+              - generic: 0 字符 / 0 行
+          - generic [ref=e121]:
+            - generic [ref=e122]: 右侧 JSON
+            - generic [ref=e123]:
+              - textbox "等待输入..." [ref=e124]
+              - generic: 0 字符 / 0 行
+        - generic [ref=e125]:
+          - button "对比" [ref=e126] [cursor=pointer]
+          - button "清除" [ref=e127] [cursor=pointer]
+        - generic [ref=e129]: 等待输入...
+    - generic [ref=e56]:
+      - generic:
+        - link "提交 Issue 🐛":
+          - /url: https://github.com/YOUR_USERNAME/devtoolbox/issues/new
+          - generic: 提交 Issue
+          - generic: 🐛
+        - button "清除缓存 🗑":
+          - generic: 清除缓存
+          - generic: 🗑
+      - button "⚙" [ref=e57] [cursor=pointer]:
+        - generic [ref=e58]: ⚙
+  - complementary [ref=e59]

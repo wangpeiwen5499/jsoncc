@@ -1,0 +1,7 @@
+[   27956ms] TypeError: Cannot read properties of null (reading 'appendChild')
+    at http://localhost:8768/index.html:2052:102
+    at Array.forEach (<anonymous>)
+    at Object.renderTimestamp [as render] (http://localhost:8768/index.html:2051:252)
+    at renderCurrentTool (http://localhost:8768/index.html:902:13)
+    at navigateTo (http://localhost:8768/index.html:882:3)
+    at HTMLElement.<anonymous> (http://localhost:8768/index.html:920:11)

@@ -1,0 +1,98 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]
+    - generic [ref=e4]:
+      - navigation [ref=e5]:
+        - generic [ref=e6]:
+          - button "JSON" [ref=e7] [cursor=pointer]
+          - button "Base64" [ref=e8] [cursor=pointer]
+          - button "URL" [ref=e9] [cursor=pointer]
+          - button "时间戳" [ref=e10] [cursor=pointer]
+          - button "正则" [ref=e11] [cursor=pointer]
+          - button "SQL" [ref=e12] [cursor=pointer]
+          - button "二维码" [ref=e13] [cursor=pointer]
+        - generic [ref=e14]:
+          - button "🌐" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 🌐
+          - generic:
+            - button "English"
+            - button "中文"
+            - button "Français"
+            - button "Deutsch"
+            - button "Español"
+            - button "Italiano"
+            - button "Português"
+            - button "Русский"
+            - button "Nederlands"
+            - button "Tiếng Việt"
+            - button "ไทย"
+            - button "Magyar"
+      - main [ref=e17]:
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - button "格式化" [ref=e21] [cursor=pointer]
+            - button "对比" [ref=e22] [cursor=pointer]
+          - generic [ref=e104]:
+            - generic [ref=e105]:
+              - heading "左侧 JSON" [level=3] [ref=e107]
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]: "1"
+                  - generic [ref=e113]: "{"
+                - generic [ref=e114]:
+                  - generic [ref=e115]: "2"
+                  - generic [ref=e116]: "*"
+                  - generic [ref=e117]: "\"name\": \"Alice\""
+                - generic [ref=e118]:
+                  - generic [ref=e119]: "3"
+                  - generic [ref=e120]: "*"
+                  - generic [ref=e121]: "\"age\": 30"
+                - generic [ref=e122]:
+                  - generic [ref=e123]: "4"
+                  - generic [ref=e124]: "-"
+                  - generic [ref=e125]: "\"city\": \"Beijing\""
+                - generic [ref=e126]:
+                  - generic [ref=e127]: "5"
+                  - generic [ref=e129]: "}"
+              - generic [ref=e130]:
+                - button "格式化" [ref=e131] [cursor=pointer]
+                - button "清除" [ref=e132] [cursor=pointer]
+                - generic [ref=e133]: 4 处差异 +1 新增 -1 删除 ~2 修改
+            - generic [ref=e134]:
+              - generic [ref=e135]:
+                - heading "右侧 JSON" [level=3] [ref=e136]
+                - generic [ref=e137]:
+                  - button "▲" [ref=e138] [cursor=pointer]
+                  - button "▼" [ref=e139] [cursor=pointer]
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - generic [ref=e143]: "1"
+                  - generic [ref=e145]: "{"
+                - generic [ref=e146]:
+                  - generic [ref=e147]: "2"
+                  - generic [ref=e148]: "*"
+                  - generic [ref=e149]: "\"name\": \"Bob\""
+                - generic [ref=e150]:
+                  - generic [ref=e151]: "3"
+                  - generic [ref=e152]: "*"
+                  - generic [ref=e153]: "\"age\": 25"
+                - generic [ref=e154]:
+                  - generic [ref=e155]: "4"
+                  - generic [ref=e156]: +
+                  - generic [ref=e157]: "\"country\": \"China\""
+                - generic [ref=e158]:
+                  - generic [ref=e159]: "5"
+                  - generic [ref=e161]: "}"
+      - generic [ref=e59]:
+        - generic:
+          - link "提交 Issue 🐛":
+            - /url: https://github.com/YOUR_USERNAME/devtoolbox/issues/new
+            - generic: 提交 Issue
+            - generic: 🐛
+          - button "清除缓存 🗑":
+            - generic: 清除缓存
+            - generic: 🗑
+        - button "⚙" [ref=e60] [cursor=pointer]:
+          - generic [ref=e61]: ⚙
+    - complementary [ref=e62]
+  - generic [ref=e163]: 两侧已填满，正在跳转对比

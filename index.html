@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevToolbox — Developer Toolkit</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🛠️</text></svg>">
+<link rel="stylesheet" href="src/css/main.css">
+</head>
+<body>
+
+<!-- App Layout -->
+<div class="app-layout">
+  <aside class="ad-slot ad-slot-left"></aside>
+  <div class="app-center">
+    <nav class="pill-nav" id="pillNav">
+      <div class="pill-links">
+        <button class="pill-item active" data-tool="json-format">JSON</button>
+        <button class="pill-item" data-tool="base64">Base64</button>
+        <button class="pill-item" data-tool="url-encode">URL</button>
+        <button class="pill-item" data-tool="timestamp">Timestamp</button>
+        <button class="pill-item" data-tool="regex">Regex</button>
+        <button class="pill-item" data-tool="sql-format">SQL</button>
+        <button class="pill-item" data-tool="qrcode-gen">QR Code</button>
+      </div>
+      <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-trigger" id="langTrigger" title="Language">
+          <span class="lang-trigger-icon">&#x1F310;</span>
+        </button>
+        <div class="lang-dropdown" id="langDropdown"></div>
+      </div>
+    </nav>
+    <main class="main">
+      <div class="tool-content" id="toolContent"></div>
+    </main>
+    <div class="fab-group" id="fabGroup">
+      <div class="fab-menu" id="fabMenu">
+        <a class="fab-item" id="fabFeedbackLink" href="https://github.com/YOUR_USERNAME/devtoolbox/issues/new" target="_blank" rel="noopener">
+          <span class="fab-item-label" id="fabFeedbackText">Report Bug</span>
+          <span class="fab-item-icon">&#x1F41B;</span>
+        </a>
+        <button class="fab-item" id="fabClearBtn" onclick="clearAllData()">
+          <span class="fab-item-label" id="fabClearText">Clear Cache</span>
+          <span class="fab-item-icon">&#x1F5D1;</span>
+        </button>
+      </div>
+      <button class="fab-trigger" id="fabTrigger" onclick="toggleFab()">
+        <span class="fab-icon-open">&#x2699;</span>
+        <span class="fab-icon-close">&times;</span>
+      </button>
+    </div>
+  </div>
+  <aside class="ad-slot ad-slot-right"></aside>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ================================================================
+   DevToolbox — i18n · Pill Nav Only · International
+   ================================================================ */
+
+// ──── i18n System ────
+const LANG_NAMES = {
+  en:'English',zh:'中文',fr:'Français',de:'Deutsch',es:'Español',
+  it:'Italiano',pt:'Português',ru:'Русский',
+  nl:'Nederlands',vi:'Tiếng Việt',th:'ไทย',hu:'Magyar'
+};
+
+const TR = {
+en:{
+  appTitle:'DevToolbox — Developer Toolkit',
+  footerText:'Data stored locally only',
+  clearCache:'Clear Cache',
+  clearConfirm:'Clear all cached tool data? This cannot be undone.',
+  cleared:'All cached data cleared',
+  chars:'chars',lines:'lines',
+  copied:'Copied to clipboard',copyFailed:'Copy failed, please copy manually',
+  loading:'Loading dependencies...',loadFailed:'library not initialized, please refresh',
+  retry:'Retry',waiting:'Waiting for input...',empty:'Input is empty',
+  feedbackText:'Found a bug? Have a feature request?',
+  feedbackLink:'Open an Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'JSON Formatter',toolBase64:'Base64 Encode/Decode',
+  toolUrlEnc:'URL Encode/Decode',toolTimestamp:'Timestamp Converter',
+  toolRegex:'Regex Tester',toolSql:'SQL Formatter',toolQrcode:'QR Code Generator',
+  format:'Format',compress:'Compress',validate:'Validate',clear:'Clear',editBack:'Edit',
+  encode:'Encode',decode:'Decode',result:'Result',copyResult:'Copy Result',
+  jsonInput:'JSON Input',jsonOutput:'Output Result',
+  jsonErr:'JSON parse error',jsonValid:'Valid JSON',jsonInvalid:'Invalid JSON',
+  jsonKeys:'top-level keys',jsonType:'Type is',jsonAutoFixed:'Auto-fixed ({0})',jsonFixTrailing:'trailing comma',jsonFixQuotes:'single quotes→double',jsonFixKeys:'unquoted keys→quoted',jsonFixEscBrackets:'escaped brackets \\[\\]→[]',jsonFixEscAmpersand:'escaped ampersands \\&→&',jsonFixCurlyQuotes:'curly quotes→straight',
+  b64Input:'Input Text',b64Encode:'Encode',b64Decode:'Decode',
+  b64Err:'Encode failed',b64Invalid:'Not a valid Base64 string',
+  urlInput:'Input Text',urlEncode:'Encode',urlDecode:'Decode',urlErr:'Decode failed',
+  tsNowMs:'Current Timestamp (ms)',
+  tsToDate:'Timestamp → Date',tsToDateBtn:'Convert to Date',
+  tsDateTo:'Date → Timestamp',tsDateToBtn:'Convert to Timestamp',
+  tsInputPh:'Enter timestamp (seconds or milliseconds)...',
+  tsDatePh:'Enter date string (e.g. 2024-01-01)...',
+  tsGetNow:'Get Now TS',tsGetDate:'Get Now Date',
+  tsInvalid:'Invalid timestamp',tsInvalidDate:'Cannot parse date format',
+  tsIso:'ISO 8601',tsLocal:'Local Time',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',tsTimezone:'Timezone',tsTzLocal:'Local',
+  regexPattern:'Regex Pattern',regexTestText:'Test Text',
+  regexReplace:'Replace Text (optional)',regexMatchResult:'Match Result',
+  regexTestMatch:'Test Match',regexNoMatch:'No matches',
+  regexFound:'Found {0} matches',regexMatchList:'Match List',
+  regexReplacePreview:'Replace Preview',regexGroup:'Group',regexEmpty:'(empty)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Phone (Intl)',
+  regexTplIp:'IP Address',regexTplChinese:'Chinese',regexTplNumber:'Number',
+  regexTplDate:'Date YYYY-MM-DD',
+  sqlInput:'SQL Input',sqlDialect:'Dialect',
+  sqlErr:'Format failed',sqlCompressErr:'Compress failed',
+  qrInput:'Input text or URL',qrGenerate:'Generate',qrDownload:'Download PNG',
+  qrEnterText:'Enter text and click Generate',qrNotReady:'QR library not ready',
+  qrGenerating:'Generating...',qrFailed:'Generate failed',qrDownloaded:'QR code downloaded',
+  qrMustGen:'Please generate a QR code first',
+  jsonSearch:'Search keys or values...',jsonSearchNoMatch:'No matches',jsonSearchCount:'{0} of {1}',
+  jsonExpandAll:'Expand All',jsonCollapseAll:'Collapse All',jsonTreeView:'Tree',jsonRawView:'Raw',
+  jsonKeyCount:'{0} keys',jsonArrayCount:'{0} items',
+  jsonDiff:'Diff',jsonDiffLeft:'Left JSON',jsonDiffRight:'Right JSON',
+  jsonDiffCompare:'Compare',jsonDiffIdentical:'Identical — no differences found',
+  jsonAddToDiff:'Add to Compare',jsonDiffSlotFull:'Both slots filled, switching to compare',
+  jsonDiffSummary:'Diff Summary',jsonDiffAdded:'Added',jsonDiffRemoved:'Removed',
+  jsonDiffChanged:'Changed',jsonDiffTypeChanged:'Type Changed',jsonDiffTotalDiffs:'{0} differences',
+  jsonDiffCopyReport:'Copy Report',jsonDiffLeftOnly:'(left only)',jsonDiffRightOnly:'(right only)'
+},
+zh:{
+  appTitle:'DevToolbox — 开发者工具箱',
+  footerText:'数据仅存本地',clearCache:'清除缓存',
+  clearConfirm:'确定要清除所有工具的缓存数据吗？此操作不可撤销。',
+  cleared:'已清除所有缓存数据',chars:'字符',lines:'行',
+  copied:'已复制到剪贴板',copyFailed:'复制失败，请手动复制',
+  loading:'正在加载依赖库...',loadFailed:'依赖库未正确初始化，请刷新页面重试',
+  retry:'重试',waiting:'等待输入...',empty:'输入为空',
+  feedbackText:'发现 Bug？有功能建议？',
+  feedbackLink:'提交 Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'时间戳',
+  navRegex:'正则',navSql:'SQL',navQrcode:'二维码',
+  toolJson:'JSON 格式化',toolBase64:'Base64 编解码',
+  toolUrlEnc:'URL 编解码',toolTimestamp:'时间戳转换',
+  toolRegex:'正则测试器',toolSql:'SQL 格式化',toolQrcode:'二维码生成',
+  format:'格式化',compress:'压缩',validate:'验证',clear:'清除',editBack:'编辑',
+  encode:'编码',decode:'解码',result:'输出结果',copyResult:'复制结果',
+  jsonInput:'JSON 输入',jsonOutput:'输出结果',
+  jsonErr:'JSON 解析错误',jsonValid:'有效 JSON',jsonInvalid:'无效 JSON',
+  jsonKeys:'个顶层键',jsonType:'类型为',jsonAutoFixed:'自动修复后解析成功（{0}）',jsonFixTrailing:'去除末尾逗号',jsonFixQuotes:'单引号转双引号',jsonFixKeys:'补全键名引号',jsonFixEscBrackets:'还原转义括号 \\[\\]→[]',jsonFixEscAmpersand:'还原转义符 \\&→&',jsonFixCurlyQuotes:'弯引号转直引号',
+  b64Input:'输入文本',b64Encode:'编码',b64Decode:'解码',
+  b64Err:'编码失败',b64Invalid:'不是有效的 Base64 字符串',
+  urlInput:'输入文本',urlEncode:'编码',urlDecode:'解码',urlErr:'解码失败',
+  tsNowMs:'当前时间戳（毫秒）',
+  tsToDate:'时间戳 → 日期',tsToDateBtn:'转换为日期',
+  tsDateTo:'日期 → 时间戳',tsDateToBtn:'转换为时间戳',
+  tsInputPh:'输入时间戳（秒或毫秒）...',
+  tsDatePh:'输入日期字符串（如 2024-01-01）...',
+  tsGetNow:'获取当前时间戳',tsGetDate:'获取当前日期',
+  tsInvalid:'无效的时间戳',tsInvalidDate:'无法解析的日期格式',
+  tsIso:'ISO 8601',tsLocal:'本地时间',tsUtc:'UTC',tsSec:'时间戳（秒）',
+  tsMs:'毫秒时间戳',tsTimezone:'时区',tsTzLocal:'本地',
+  regexPattern:'正则表达式',regexTestText:'测试文本',
+  regexReplace:'替换文本（可选）',regexMatchResult:'匹配结果',
+  regexTestMatch:'测试匹配',regexNoMatch:'没有匹配项',
+  regexFound:'找到 {0} 个匹配',regexMatchList:'匹配列表',
+  regexReplacePreview:'替换预览',regexGroup:'分组',regexEmpty:'（空）',
+  regexTplEmail:'邮箱',regexTplUrl:'URL',regexTplPhone:'国际手机号',
+  regexTplIp:'IP 地址',regexTplChinese:'中文',regexTplNumber:'数字',
+  regexTplDate:'日期 YYYY-MM-DD',
+  sqlInput:'SQL 输入',sqlDialect:'方言',
+  sqlErr:'格式化失败',sqlCompressErr:'压缩失败',
+  qrInput:'输入文本或 URL',qrGenerate:'生成',qrDownload:'下载 PNG',
+  qrEnterText:'输入文本后点击「生成」',qrNotReady:'二维码库未就绪，请刷新页面后重试',
+  qrGenerating:'生成中...',qrFailed:'生成失败',qrDownloaded:'二维码已下载',
+  qrMustGen:'请先生成二维码',
+  jsonSearch:'搜索键名或值...',jsonSearchNoMatch:'无匹配结果',jsonSearchCount:'{0} / {1}',
+  jsonExpandAll:'全部展开',jsonCollapseAll:'全部折叠',jsonTreeView:'树形',jsonRawView:'原始',
+  jsonKeyCount:'{0} 个键',jsonArrayCount:'{0} 个元素',
+  jsonDiff:'对比',jsonDiffLeft:'左侧 JSON',jsonDiffRight:'右侧 JSON',
+  jsonDiffCompare:'对比',jsonDiffIdentical:'完全相同 — 未发现差异',
+  jsonAddToDiff:'加入对比',jsonDiffSlotFull:'两侧已填满，正在跳转对比',
+  jsonDiffSummary:'差异摘要',jsonDiffAdded:'新增',jsonDiffRemoved:'删除',
+  jsonDiffChanged:'修改',jsonDiffTypeChanged:'类型变化',jsonDiffTotalDiffs:'{0} 处差异',
+  jsonDiffCopyReport:'复制报告',jsonDiffLeftOnly:'（仅左侧）',jsonDiffRightOnly:'（仅右侧）'
+},
+fr:{
+  appTitle:'DevToolbox — Boîte à outils développeur',
+  footerText:'Données stockées localement uniquement',clearCache:'Effacer le cache',
+  clearConfirm:'Effacer toutes les données en cache ? Cette action est irréversible.',
+  cleared:'Toutes les données en cache ont été effacées',chars:'caractères',lines:'lignes',
+  copied:'Copié dans le presse-papiers',copyFailed:'Échec de la copie, veuillez copier manuellement',
+  loading:'Chargement des dépendances...',loadFailed:'bibliothèque non initialisée, veuillez actualiser',
+  retry:'Réessayer',waiting:'En attente de saisie...',empty:'Saisie vide',
+  feedbackText:'Un bug ? Une suggestion ?',
+  feedbackLink:'Ouvrir une Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Formateur JSON',toolBase64:'Encodage/Décodage Base64',
+  toolUrlEnc:'Encodage/Décodage URL',toolTimestamp:'Convertisseur de timestamp',
+  toolRegex:'Testeur Regex',toolSql:'Formateur SQL',toolQrcode:'Générateur QR Code',
+  format:'Formater',compress:'Compresser',validate:'Valider',clear:'Effacer',
+  encode:'Encoder',decode:'Décoder',result:'Résultat',copyResult:'Copier le résultat',
+  jsonInput:'Entrée JSON',jsonOutput:'Résultat',
+  jsonErr:'Erreur JSON',jsonValid:'JSON valide',jsonInvalid:'JSON invalide',
+  jsonKeys:'clés de premier niveau',jsonType:'Le type est',
+  b64Input:'Texte source',b64Encode:'Encoder',b64Decode:'Décoder',
+  b64Err:"Échec de l'encodage",b64Invalid:'Chaîne Base64 non valide',
+  urlInput:'Texte source',urlEncode:'Encoder',urlDecode:'Décoder',urlErr:'Échec du décodage',
+  tsNowMs:'Timestamp actuel (ms)',
+  tsToDate:'Timestamp → Date',tsToDateBtn:'Convertir en date',
+  tsDateTo:'Date → Timestamp',tsDateToBtn:'Convertir en timestamp',
+  tsInputPh:'Saisir le timestamp (secondes ou millisecondes)...',
+  tsDatePh:'Saisir la date (ex. 2024-01-01)...',
+  tsGetNow:'TS actuel',tsGetDate:'Date actuelle',
+  tsInvalid:'Timestamp invalide',tsInvalidDate:'Format de date non reconnu',
+  tsIso:'ISO 8601',tsLocal:'Heure locale',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Expression régulière',regexTestText:'Texte de test',
+  regexReplace:'Texte de remplacement (optionnel)',regexMatchResult:'Résultat',
+  regexTestMatch:'Tester',regexNoMatch:'Aucune correspondance',
+  regexFound:'{0} correspondances trouvées',regexMatchList:'Liste des correspondances',
+  regexReplacePreview:'Aperçu du remplacement',regexGroup:'Groupe',regexEmpty:'(vide)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Téléphone (intl)',
+  regexTplIp:'Adresse IP',regexTplChinese:'Chinois',regexTplNumber:'Nombre',
+  regexTplDate:'Date AAAA-MM-JJ',
+  sqlInput:'Entrée SQL',sqlDialect:'Dialecte',
+  sqlErr:'Échec du formatage',sqlCompressErr:'Échec de la compression',
+  qrInput:'Texte ou URL',qrGenerate:'Générer',qrDownload:'Télécharger PNG',
+  qrEnterText:'Saisissez du texte et cliquez sur Générer',qrNotReady:'Bibliothèque QR non prête',
+  qrGenerating:'Génération...',qrFailed:'Échec de la génération',qrDownloaded:'QR code téléchargé',
+  qrMustGen:"Veuillez d'abord générer un QR code",
+  jsonSearch:'Rechercher clés/valeurs...',jsonSearchNoMatch:'Aucun résultat',jsonSearchCount:'{0} / {1}',
+  jsonExpandAll:'Tout déplier',jsonCollapseAll:'Tout replier',jsonTreeView:'Arbre',jsonRawView:'Brut',
+  jsonKeyCount:'{0} clés',jsonArrayCount:'{0} éléments',
+  jsonDiff:'Diff',jsonDiffLeft:'JSON gauche',jsonDiffRight:'JSON droit',
+  jsonDiffCompare:'Comparer',jsonDiffIdentical:'Identique — aucune différence',
+  jsonDiffSummary:'Résumé',jsonDiffAdded:'Ajouté',jsonDiffRemoved:'Supprimé',
+  jsonDiffChanged:'Modifié',jsonDiffTypeChanged:'Type modifié',jsonDiffTotalDiffs:'{0} différences',
+  jsonDiffCopyReport:'Copier le rapport',jsonDiffLeftOnly:'(gauche uniquement)',jsonDiffRightOnly:'(droit uniquement)'
+},
+de:{
+  appTitle:'DevToolbox — Entwickler-Toolkit',
+  footerText:'Daten werden nur lokal gespeichert',clearCache:'Cache leeren',
+  clearConfirm:'Alle zwischengespeicherten Daten löschen? Dies kann nicht rückgängig gemacht werden.',
+  cleared:'Alle zwischengespeicherten Daten gelöscht',chars:'Zeichen',lines:'Zeilen',
+  copied:'In die Zwischenablage kopiert',copyFailed:'Kopieren fehlgeschlagen, bitte manuell kopieren',
+  loading:'Abhängigkeiten werden geladen...',loadFailed:'Bibliothek nicht initialisiert, bitte aktualisieren',
+  retry:'Wiederholen',waiting:'Warte auf Eingabe...',empty:'Eingabe ist leer',
+  feedbackText:'Bug gefunden? Verbesserungsvorschlag?',
+  feedbackLink:'Issue erstellen →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'JSON-Formatierer',toolBase64:'Base64-Kodierung/Dekodierung',
+  toolUrlEnc:'URL-Kodierung/Dekodierung',toolTimestamp:'Timestamp-Konverter',
+  toolRegex:'Regex-Tester',toolSql:'SQL-Formatierer',toolQrcode:'QR-Code-Generator',
+  format:'Formatieren',compress:'Komprimieren',validate:'Validieren',clear:'Löschen',
+  encode:'Kodieren',decode:'Dekodieren',result:'Ergebnis',copyResult:'Ergebnis kopieren',
+  jsonInput:'JSON-Eingabe',jsonOutput:'Ausgabe',
+  jsonErr:'JSON-Fehler',jsonValid:'Gültiges JSON',jsonInvalid:'Ungültiges JSON',
+  jsonKeys:'Schlüssel der obersten Ebene',jsonType:'Typ ist',
+  b64Input:'Eingabetext',b64Encode:'Kodieren',b64Decode:'Dekodieren',
+  b64Err:'Kodierung fehlgeschlagen',b64Invalid:'Kein gültiger Base64-String',
+  urlInput:'Eingabetext',urlEncode:'Kodieren',urlDecode:'Dekodieren',urlErr:'Dekodierung fehlgeschlagen',
+  tsNowMs:'Aktueller Timestamp (ms)',
+  tsToDate:'Timestamp → Datum',tsToDateBtn:'In Datum konvertieren',
+  tsDateTo:'Datum → Timestamp',tsDateToBtn:'In Timestamp konvertieren',
+  tsInputPh:'Timestamp eingeben (Sekunden oder Millisekunden)...',
+  tsDatePh:'Datum eingeben (z.B. 2024-01-01)...',
+  tsGetNow:'Aktuellen TS',tsGetDate:'Aktuelles Datum',
+  tsInvalid:'Ungültiger Timestamp',tsInvalidDate:'Datumsformat nicht erkannt',
+  tsIso:'ISO 8601',tsLocal:'Lokalzeit',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Regulärer Ausdruck',regexTestText:'Testtext',
+  regexReplace:'Ersetzungstext (optional)',regexMatchResult:'Treffergebnis',
+  regexTestMatch:'Testen',regexNoMatch:'Keine Treffer',
+  regexFound:'{0} Treffer gefunden',regexMatchList:'Trefferliste',
+  regexReplacePreview:'Ersetzungsvorschau',regexGroup:'Gruppe',regexEmpty:'(leer)',
+  regexTplEmail:'E-Mail',regexTplUrl:'URL',regexTplPhone:'Telefon (intl)',
+  regexTplIp:'IP-Adresse',regexTplChinese:'Chinesisch',regexTplNumber:'Zahl',
+  regexTplDate:'Datum JJJJ-MM-TT',
+  sqlInput:'SQL-Eingabe',sqlDialect:'Dialekt',
+  sqlErr:'Formatierung fehlgeschlagen',sqlCompressErr:'Komprimierung fehlgeschlagen',
+  qrInput:'Text oder URL',qrGenerate:'Generieren',qrDownload:'PNG herunterladen',
+  qrEnterText:'Text eingeben und Generieren klicken',qrNotReady:'QR-Bibliothek nicht bereit',
+  qrGenerating:'Generierung...',qrFailed:'Generierung fehlgeschlagen',qrDownloaded:'QR-Code heruntergeladen',
+  qrMustGen:'Bitte zuerst einen QR-Code generieren',
+  jsonSearch:'Schlüssel/Werte suchen...',jsonSearchNoMatch:'Keine Treffer',jsonSearchCount:'{0} von {1}',
+  jsonExpandAll:'Alle ausklappen',jsonCollapseAll:'Alle einklappen',jsonTreeView:'Baum',jsonRawView:'Roh',
+  jsonKeyCount:'{0} Schlüssel',jsonArrayCount:'{0} Elemente',
+  jsonDiff:'Diff',jsonDiffLeft:'Links JSON',jsonDiffRight:'Rechts JSON',
+  jsonDiffCompare:'Vergleichen',jsonDiffIdentical:'Identisch — keine Unterschiede',
+  jsonDiffSummary:'Zusammenfassung',jsonDiffAdded:'Hinzugefügt',jsonDiffRemoved:'Entfernt',
+  jsonDiffChanged:'Geändert',jsonDiffTypeChanged:'Typ geändert',jsonDiffTotalDiffs:'{0} Unterschiede',
+  jsonDiffCopyReport:'Bericht kopieren',jsonDiffLeftOnly:'(nur links)',jsonDiffRightOnly:'(nur rechts)'
+},
+es:{
+  appTitle:'DevToolbox — Kit de herramientas para desarrolladores',
+  footerText:'Datos almacenados solo localmente',clearCache:'Limpiar caché',
+  clearConfirm:'¿Eliminar todos los datos en caché? Esta acción no se puede deshacer.',
+  cleared:'Todos los datos en caché eliminados',chars:'caracteres',lines:'líneas',
+  copied:'Copiado al portapapeles',copyFailed:'Error al copiar, copie manualmente',
+  loading:'Cargando dependencias...',loadFailed:'biblioteca no inicializada, actualice la página',
+  retry:'Reintentar',waiting:'Esperando entrada...',empty:'Entrada vacía',
+  feedbackText:'¿Encontraste un bug? ¿Tienes una sugerencia?',
+  feedbackLink:'Abrir un Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Formateador JSON',toolBase64:'Codificación/Decodificación Base64',
+  toolUrlEnc:'Codificación/Decodificación URL',toolTimestamp:'Conversor de timestamp',
+  toolRegex:'Probador Regex',toolSql:'Formateador SQL',toolQrcode:'Generador QR Code',
+  format:'Formatear',compress:'Comprimir',validate:'Validar',clear:'Limpiar',
+  encode:'Codificar',decode:'Decodificar',result:'Resultado',copyResult:'Copiar resultado',
+  jsonInput:'Entrada JSON',jsonOutput:'Resultado',
+  jsonErr:'Error JSON',jsonValid:'JSON válido',jsonInvalid:'JSON inválido',
+  jsonKeys:'claves de nivel superior',jsonType:'El tipo es',
+  b64Input:'Texto de entrada',b64Encode:'Codificar',b64Decode:'Decodificar',
+  b64Err:'Codificación fallida',b64Invalid:'Cadena Base64 no válida',
+  urlInput:'Texto de entrada',urlEncode:'Codificar',urlDecode:'Decodificar',urlErr:'Decodificación fallida',
+  tsNowMs:'Timestamp actual (ms)',
+  tsToDate:'Timestamp → Fecha',tsToDateBtn:'Convertir a fecha',
+  tsDateTo:'Fecha → Timestamp',tsDateToBtn:'Convertir a timestamp',
+  tsInputPh:'Ingrese timestamp (segundos o milisegundos)...',
+  tsDatePh:'Ingrese fecha (ej. 2024-01-01)...',
+  tsGetNow:'TS actual',tsGetDate:'Fecha actual',
+  tsInvalid:'Timestamp inválido',tsInvalidDate:'Formato de fecha no reconocido',
+  tsIso:'ISO 8601',tsLocal:'Hora local',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Expresión regular',regexTestText:'Texto de prueba',
+  regexReplace:'Texto de reemplazo (opcional)',regexMatchResult:'Resultado',
+  regexTestMatch:'Probar',regexNoMatch:'Sin coincidencias',
+  regexFound:'{0} coincidencias encontradas',regexMatchList:'Lista de coincidencias',
+  regexReplacePreview:'Vista previa de reemplazo',regexGroup:'Grupo',regexEmpty:'(vacío)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Teléfono (intl)',
+  regexTplIp:'Dirección IP',regexTplChinese:'Chino',regexTplNumber:'Número',
+  regexTplDate:'Fecha AAAA-MM-DD',
+  sqlInput:'Entrada SQL',sqlDialect:'Dialecto',
+  sqlErr:'Formateo fallido',sqlCompressErr:'Compresión fallida',
+  qrInput:'Texto o URL',qrGenerate:'Generar',qrDownload:'Descargar PNG',
+  qrEnterText:'Ingrese texto y haga clic en Generar',qrNotReady:'Biblioteca QR no lista',
+  qrGenerating:'Generando...',qrFailed:'Generación fallida',qrDownloaded:'QR code descargado',
+  qrMustGen:'Primero genere un código QR',
+  jsonSearch:'Buscar claves/valores...',jsonSearchNoMatch:'Sin resultados',jsonSearchCount:'{0} de {1}',
+  jsonExpandAll:'Expandir todo',jsonCollapseAll:'Colapsar todo',jsonTreeView:'Árbol',jsonRawView:'Texto',
+  jsonKeyCount:'{0} claves',jsonArrayCount:'{0} elementos',
+  jsonDiff:'Diff',jsonDiffLeft:'JSON izquierdo',jsonDiffRight:'JSON derecho',
+  jsonDiffCompare:'Comparar',jsonDiffIdentical:'Idéntico — sin diferencias',
+  jsonDiffSummary:'Resumen',jsonDiffAdded:'Agregado',jsonDiffRemoved:'Eliminado',
+  jsonDiffChanged:'Modificado',jsonDiffTypeChanged:'Tipo cambiado',jsonDiffTotalDiffs:'{0} diferencias',
+  jsonDiffCopyReport:'Copiar informe',jsonDiffLeftOnly:'(solo izquierdo)',jsonDiffRightOnly:'(solo derecho)'
+},
+it:{
+  appTitle:'DevToolbox — Toolkit per sviluppatori',
+  footerText:'Dati salvati solo localmente',clearCache:'Svuota cache',
+  clearConfirm:"Eliminare tutti i dati nella cache? Questa azione non può essere annullata.",
+  cleared:'Tutti i dati nella cache sono stati eliminati',chars:'caratteri',lines:'righe',
+  copied:'Copiato negli appunti',copyFailed:'Copia fallita, copiare manualmente',
+  loading:'Caricamento dipendenze...',loadFailed:'libreria non inizializzata, aggiornare la pagina',
+  retry:'Riprova',waiting:"In attesa di input...",empty:'Input vuoto',
+  feedbackText:'Trovato un bug? Hai un suggerimento?',
+  feedbackLink:'Apri una Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Formattatore JSON',toolBase64:'Codifica/Decodifica Base64',
+  toolUrlEnc:'Codifica/Decodifica URL',toolTimestamp:'Convertitore timestamp',
+  toolRegex:'Tester Regex',toolSql:'Formattatore SQL',toolQrcode:'Generatore QR Code',
+  format:'Formatta',compress:'Comprimi',validate:'Valida',clear:'Pulisci',
+  encode:'Codifica',decode:'Decodifica',result:'Risultato',copyResult:'Copia risultato',
+  jsonInput:'Input JSON',jsonOutput:'Risultato',
+  jsonErr:'Errore JSON',jsonValid:'JSON valido',jsonInvalid:'JSON non valido',
+  jsonKeys:'chiavi di primo livello',jsonType:'Il tipo è',
+  b64Input:'Testo di input',b64Encode:'Codifica',b64Decode:'Decodifica',
+  b64Err:'Codifica fallita',b64Invalid:'Stringa Base64 non valida',
+  urlInput:'Testo di input',urlEncode:'Codifica',urlDecode:'Decodifica',urlErr:'Decodifica fallita',
+  tsNowMs:'Timestamp corrente (ms)',
+  tsToDate:'Timestamp → Data',tsToDateBtn:'Converti in data',
+  tsDateTo:'Data → Timestamp',tsDateToBtn:'Converti in timestamp',
+  tsInputPh:'Inserisci timestamp (secondi o millisecondi)...',
+  tsDatePh:'Inserisci data (es. 2024-01-01)...',
+  tsGetNow:'TS corrente',tsGetDate:'Data corrente',
+  tsInvalid:'Timestamp non valido',tsInvalidDate:'Formato data non riconosciuto',
+  tsIso:'ISO 8601',tsLocal:'Ora locale',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Espressione regolare',regexTestText:'Testo di test',
+  regexReplace:'Testo di sostituzione (opzionale)',regexMatchResult:'Risultato',
+  regexTestMatch:'Testa',regexNoMatch:'Nessuna corrispondenza',
+  regexFound:'{0} corrispondenze trovate',regexMatchList:'Elenco corrispondenze',
+  regexReplacePreview:'Anteprima sostituzione',regexGroup:'Gruppo',regexEmpty:'(vuoto)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Telefono (intl)',
+  regexTplIp:'Indirizzo IP',regexTplChinese:'Cinese',regexTplNumber:'Numero',
+  regexTplDate:'Data AAAA-MM-GG',
+  sqlInput:'Input SQL',sqlDialect:'Dialetto',
+  sqlErr:'Formattazione fallita',sqlCompressErr:'Compressione fallita',
+  qrInput:'Testo o URL',qrGenerate:'Genera',qrDownload:'Scarica PNG',
+  qrEnterText:'Inserisci testo e clicca Genera',qrNotReady:'Libreria QR non pronta',
+  qrGenerating:'Generazione...',qrFailed:'Generazione fallita',qrDownloaded:'QR code scaricato',
+  qrMustGen:'Genera prima un codice QR',
+  jsonSearch:'Cerca chiavi/valori...',jsonSearchNoMatch:'Nessun risultato',jsonSearchCount:'{0} di {1}',
+  jsonExpandAll:'Espandi tutto',jsonCollapseAll:'Comprimi tutto',jsonTreeView:'Albero',jsonRawView:'Testo',
+  jsonKeyCount:'{0} chiavi',jsonArrayCount:'{0} elementi',
+  jsonDiff:'Diff',jsonDiffLeft:'JSON sinistro',jsonDiffRight:'JSON destro',
+  jsonDiffCompare:'Confronta',jsonDiffIdentical:'Identico — nessuna differenza',
+  jsonDiffSummary:'Riepilogo',jsonDiffAdded:'Aggiunto',jsonDiffRemoved:'Rimosso',
+  jsonDiffChanged:'Modificato',jsonDiffTypeChanged:'Tipo modificato',jsonDiffTotalDiffs:'{0} differenze',
+  jsonDiffCopyReport:'Copia rapporto',jsonDiffLeftOnly:'(solo sinistro)',jsonDiffRightOnly:'(solo destro)'
+},
+pt:{
+  appTitle:'DevToolbox — Kit de ferramentas para desenvolvedores',
+  footerText:'Dados armazenados apenas localmente',clearCache:'Limpar cache',
+  clearConfirm:'Limpar todos os dados em cache? Esta ação não pode ser desfeita.',
+  cleared:'Todos os dados em cache foram limpos',chars:'caracteres',lines:'linhas',
+  copied:'Copiado para a área de transferência',copyFailed:'Falha ao copiar, copie manualmente',
+  loading:'Carregando dependências...',loadFailed:'biblioteca não inicializada, atualize a página',
+  retry:'Tentar novamente',waiting:'Aguardando entrada...',empty:'Entrada vazia',
+  feedbackText:'Encontrou um bug? Tem uma sugestão?',
+  feedbackLink:'Abrir uma Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Formatador JSON',toolBase64:'Codificação/Decodificação Base64',
+  toolUrlEnc:'Codificação/Decodificação URL',toolTimestamp:'Conversor de timestamp',
+  toolRegex:'Testador Regex',toolSql:'Formatador SQL',toolQrcode:'Gerador QR Code',
+  format:'Formatar',compress:'Comprimir',validate:'Validar',clear:'Limpar',
+  encode:'Codificar',decode:'Decodificar',result:'Resultado',copyResult:'Copiar resultado',
+  jsonInput:'Entrada JSON',jsonOutput:'Resultado',
+  jsonErr:'Erro JSON',jsonValid:'JSON válido',jsonInvalid:'JSON inválido',
+  jsonKeys:'chaves de nível superior',jsonType:'O tipo é',
+  b64Input:'Texto de entrada',b64Encode:'Codificar',b64Decode:'Decodificar',
+  b64Err:'Codificação falhou',b64Invalid:'String Base64 inválida',
+  urlInput:'Texto de entrada',urlEncode:'Codificar',urlDecode:'Decodificar',urlErr:'Decodificação falhou',
+  tsNowMs:'Timestamp atual (ms)',
+  tsToDate:'Timestamp → Data',tsToDateBtn:'Converter para data',
+  tsDateTo:'Data → Timestamp',tsDateToBtn:'Converter para timestamp',
+  tsInputPh:'Insira o timestamp (segundos ou milissegundos)...',
+  tsDatePh:'Insira a data (ex. 2024-01-01)...',
+  tsGetNow:'TS atual',tsGetDate:'Data atual',
+  tsInvalid:'Timestamp inválido',tsInvalidDate:'Formato de data não reconhecido',
+  tsIso:'ISO 8601',tsLocal:'Hora local',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Expressão regular',regexTestText:'Texto de teste',
+  regexReplace:'Texto de substituição (opcional)',regexMatchResult:'Resultado',
+  regexTestMatch:'Testar',regexNoMatch:'Nenhuma correspondência',
+  regexFound:'{0} correspondências encontradas',regexMatchList:'Lista de correspondências',
+  regexReplacePreview:'Pré-visualização da substituição',regexGroup:'Grupo',regexEmpty:'(vazio)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Telefone (intl)',
+  regexTplIp:'Endereço IP',regexTplChinese:'Chinês',regexTplNumber:'Número',
+  regexTplDate:'Data AAAA-MM-DD',
+  sqlInput:'Entrada SQL',sqlDialect:'Dialeto',
+  sqlErr:'Formatação falhou',sqlCompressErr:'Compressão falhou',
+  qrInput:'Texto ou URL',qrGenerate:'Gerar',qrDownload:'Baixar PNG',
+  qrEnterText:'Insira texto e clique em Gerar',qrNotReady:'Biblioteca QR não pronta',
+  qrGenerating:'Gerando...',qrFailed:'Geração falhou',qrDownloaded:'QR code baixado',
+  qrMustGen:'Gere um código QR primeiro',
+  jsonSearch:'Buscar chaves/valores...',jsonSearchNoMatch:'Nenhum resultado',jsonSearchCount:'{0} de {1}',
+  jsonExpandAll:'Expandir tudo',jsonCollapseAll:'Recolher tudo',jsonTreeView:'Árvore',jsonRawView:'Texto',
+  jsonKeyCount:'{0} chaves',jsonArrayCount:'{0} itens',
+  jsonDiff:'Diff',jsonDiffLeft:'JSON esquerdo',jsonDiffRight:'JSON direito',
+  jsonDiffCompare:'Comparar',jsonDiffIdentical:'Idêntico — sem diferenças',
+  jsonDiffSummary:'Resumo',jsonDiffAdded:'Adicionado',jsonDiffRemoved:'Removido',
+  jsonDiffChanged:'Modificado',jsonDiffTypeChanged:'Tipo alterado',jsonDiffTotalDiffs:'{0} diferenças',
+  jsonDiffCopyReport:'Copiar relatório',jsonDiffLeftOnly:'(só esquerdo)',jsonDiffRightOnly:'(só direito)'
+},
+ru:{
+  appTitle:'DevToolbox — Инструменты разработчика',
+  footerText:'Данные хранятся только локально',clearCache:'Очистить кэш',
+  clearConfirm:'Удалить все кэшированные данные? Это действие нельзя отменить.',
+  cleared:'Все кэшированные данные удалены',chars:'симв.',lines:'строк',
+  copied:'Скопировано в буфер обмена',copyFailed:'Ошибка копирования, скопируйте вручную',
+  loading:'Загрузка зависимостей...',loadFailed:'библиотека не инициализирована, обновите страницу',
+  retry:'Повторить',waiting:'Ожидание ввода...',empty:'Ввод пуст',
+  feedbackText:'Нашли баг? Есть предложение?',
+  feedbackLink:'Создать Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Форматирование JSON',toolBase64:'Кодирование/Декодирование Base64',
+  toolUrlEnc:'Кодирование/Декодирование URL',toolTimestamp:'Конвертер timestamp',
+  toolRegex:'Тестер Regex',toolSql:'Форматирование SQL',toolQrcode:'Генератор QR-кода',
+  format:'Форматировать',compress:'Сжать',validate:'Проверить',clear:'Очистить',
+  encode:'Кодировать',decode:'Декодировать',result:'Результат',copyResult:'Копировать результат',
+  jsonInput:'Ввод JSON',jsonOutput:'Результат',
+  jsonErr:'Ошибка JSON',jsonValid:'Корректный JSON',jsonInvalid:'Некорректный JSON',
+  jsonKeys:'ключей верхнего уровня',jsonType:'Тип:',
+  b64Input:'Исходный текст',b64Encode:'Кодировать',b64Decode:'Декодировать',
+  b64Err:'Ошибка кодирования',b64Invalid:'Некорректная строка Base64',
+  urlInput:'Исходный текст',urlEncode:'Кодировать',urlDecode:'Декодировать',urlErr:'Ошибка декодирования',
+  tsNowMs:'Текущий timestamp (мс)',
+  tsToDate:'Timestamp → Дата',tsToDateBtn:'Конвертировать в дату',
+  tsDateTo:'Дата → Timestamp',tsDateToBtn:'Конвертировать в timestamp',
+  tsInputPh:'Введите timestamp (секунды или миллисекунды)...',
+  tsDatePh:'Введите дату (напр. 2024-01-01)...',
+  tsGetNow:'Текущий TS',tsGetDate:'Текущая дата',
+  tsInvalid:'Некорректный timestamp',tsInvalidDate:'Формат даты не распознан',
+  tsIso:'ISO 8601',tsLocal:'Местное время',tsUtc:'UTC',tsSec:'Timestamp (с)',
+  tsMs:'Timestamp (мс)',
+  regexPattern:'Регулярное выражение',regexTestText:'Тестовый текст',
+  regexReplace:'Текст замены (опционально)',regexMatchResult:'Результат',
+  regexTestMatch:'Тестировать',regexNoMatch:'Совпадений нет',
+  regexFound:'Найдено {0} совпадений',regexMatchList:'Список совпадений',
+  regexReplacePreview:'Предпросмотр замены',regexGroup:'Группа',regexEmpty:'(пусто)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Телефон (межд.)',
+  regexTplIp:'IP-адрес',regexTplChinese:'Китайский',regexTplNumber:'Число',
+  regexTplDate:'Дата ГГГГ-ММ-ДД',
+  sqlInput:'Ввод SQL',sqlDialect:'Диалект',
+  sqlErr:'Ошибка форматирования',sqlCompressErr:'Ошибка сжатия',
+  qrInput:'Текст или URL',qrGenerate:'Создать',qrDownload:'Скачать PNG',
+  qrEnterText:'Введите текст и нажмите Создать',qrNotReady:'Библиотека QR не готова',
+  qrGenerating:'Генерация...',qrFailed:'Ошибка генерации',qrDownloaded:'QR-код загружен',
+  qrMustGen:'Сначала создайте QR-код',
+  jsonSearch:'Поиск ключей/значений...',jsonSearchNoMatch:'Нет совпадений',jsonSearchCount:'{0} из {1}',
+  jsonExpandAll:'Развернуть всё',jsonCollapseAll:'Свернуть всё',jsonTreeView:'Дерево',jsonRawView:'Текст',
+  jsonKeyCount:'{0} ключей',jsonArrayCount:'{0} элементов',
+  jsonDiff:'Сравнение',jsonDiffLeft:'Левый JSON',jsonDiffRight:'Правый JSON',
+  jsonDiffCompare:'Сравнить',jsonDiffIdentical:'Идентично — различий нет',
+  jsonDiffSummary:'Сводка',jsonDiffAdded:'Добавлено',jsonDiffRemoved:'Удалено',
+  jsonDiffChanged:'Изменено',jsonDiffTypeChanged:'Тип изменён',jsonDiffTotalDiffs:'{0} различий',
+  jsonDiffCopyReport:'Копировать отчёт',jsonDiffLeftOnly:'(только левый)',jsonDiffRightOnly:'(только правый)'
+},
+nl:{
+  appTitle:'DevToolbox — Ontwikkelaarstoolkit',
+  footerText:'Gegevens alleen lokaal opgeslagen',clearCache:'Cache wissen',
+  clearConfirm:'Alle gecachte gegevens wissen? Dit kan niet ongedaan worden gemaakt.',
+  cleared:'Alle gecachte gegevens gewist',chars:'tekens',lines:'regels',
+  copied:'Gekopieerd naar klembord',copyFailed:'Kopiëren mislukt, kopieer handmatig',
+  loading:'Afhankelijkheden laden...',loadFailed:'bibliotheek niet geïnitialiseerd, ververs de pagina',
+  retry:'Opnieuw',waiting:'Wachten op invoer...',empty:'Invoer is leeg',
+  feedbackText:'Bug gevonden? Heb je een suggestie?',
+  feedbackLink:'Open een Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'JSON Formatter',toolBase64:'Base64 Coderen/Decoderen',
+  toolUrlEnc:'URL Coderen/Decoderen',toolTimestamp:'Timestamp Omzetter',
+  toolRegex:'Regex Tester',toolSql:'SQL Formatter',toolQrcode:'QR Code Generator',
+  format:'Formatteren',compress:'Comprimeren',validate:'Valideren',clear:'Wissen',
+  encode:'Coderen',decode:'Decoderen',result:'Resultaat',copyResult:'Resultaat kopiëren',
+  jsonInput:'JSON Invoer',jsonOutput:'Resultaat',
+  jsonErr:'JSON fout',jsonValid:'Geldige JSON',jsonInvalid:'Ongeldige JSON',
+  jsonKeys:'sleutels op topniveau',jsonType:'Type is',
+  b64Input:'Invoertekst',b64Encode:'Coderen',b64Decode:'Decoderen',
+  b64Err:'Coderen mislukt',b64Invalid:'Geen geldige Base64-tekenreeks',
+  urlInput:'Invoertekst',urlEncode:'Coderen',urlDecode:'Decoderen',urlErr:'Decoderen mislukt',
+  tsNowMs:'Huidige timestamp (ms)',
+  tsToDate:'Timestamp → Datum',tsToDateBtn:'Omzetten naar datum',
+  tsDateTo:'Datum → Timestamp',tsDateToBtn:'Omzetten naar timestamp',
+  tsInputPh:'Voer timestamp in (seconden of milliseconden)...',
+  tsDatePh:'Voer datum in (bijv. 2024-01-01)...',
+  tsGetNow:'Huidige TS',tsGetDate:'Huidige datum',
+  tsInvalid:'Ongeldige timestamp',tsInvalidDate:'Datumformaat niet herkend',
+  tsIso:'ISO 8601',tsLocal:'Lokale tijd',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Reguliere expressie',regexTestText:'Testtekst',
+  regexReplace:'Vervangtekst (optioneel)',regexMatchResult:'Resultaat',
+  regexTestMatch:'Testen',regexNoMatch:'Geen overeenkomsten',
+  regexFound:'{0} overeenkomsten gevonden',regexMatchList:'Overeenkomstenlijst',
+  regexReplacePreview:'Vervangvoorbeeld',regexGroup:'Groep',regexEmpty:'(leeg)',
+  regexTplEmail:'E-mail',regexTplUrl:'URL',regexTplPhone:'Telefoon (intl)',
+  regexTplIp:'IP-adres',regexTplChinese:'Chinees',regexTplNumber:'Getal',
+  regexTplDate:'Datum JJJJ-MM-DD',
+  sqlInput:'SQL Invoer',sqlDialect:'Dialect',
+  sqlErr:'Formatteren mislukt',sqlCompressErr:'Comprimeren mislukt',
+  qrInput:'Tekst of URL',qrGenerate:'Genereren',qrDownload:'PNG downloaden',
+  qrEnterText:'Voer tekst in en klik op Genereren',qrNotReady:'QR-bibliotheek niet gereed',
+  qrGenerating:'Genereren...',qrFailed:'Genereren mislukt',qrDownloaded:'QR-code gedownload',
+  qrMustGen:'Genereer eerst een QR-code',
+  jsonSearch:'Zoek sleutels/waarden...',jsonSearchNoMatch:'Geen resultaten',jsonSearchCount:'{0} van {1}',
+  jsonExpandAll:'Alles uitklappen',jsonCollapseAll:'Alles inklappen',jsonTreeView:'Boom',jsonRawView:'Ruw',
+  jsonKeyCount:'{0} sleutels',jsonArrayCount:'{0} items',
+  jsonDiff:'Diff',jsonDiffLeft:'Links JSON',jsonDiffRight:'Rechts JSON',
+  jsonDiffCompare:'Vergelijken',jsonDiffIdentical:'Identiek — geen verschillen',
+  jsonDiffSummary:'Samenvatting',jsonDiffAdded:'Toegevoegd',jsonDiffRemoved:'Verwijderd',
+  jsonDiffChanged:'Gewijzigd',jsonDiffTypeChanged:'Type gewijzigd',jsonDiffTotalDiffs:'{0} verschillen',
+  jsonDiffCopyReport:'Rapport kopiëren',jsonDiffLeftOnly:'(alleen links)',jsonDiffRightOnly:'(alleen rechts)'
+},
+vi:{
+  appTitle:'DevToolbox — Bộ công cụ lập trình',
+  footerText:'Dữ liệu chỉ lưu cục bộ',clearCache:'Xóa bộ nhớ đệm',
+  clearConfirm:'Xóa tất cả dữ liệu đã lưu? Hành động này không thể hoàn tác.',
+  cleared:'Đã xóa tất cả dữ liệu',chars:'ký tự',lines:'dòng',
+  copied:'Đã sao chép vào clipboard',copyFailed:'Sao chép thất bại, vui lòng sao chép thủ công',
+  loading:'Đang tải thư viện...',loadFailed:'thư viện chưa sẵn sàng, vui lòng tải lại trang',
+  retry:'Thử lại',waiting:'Đang chờ nhập...',empty:'Đầu vào trống',
+  feedbackText:'Tìm thấy lỗi? Có đề xuất tính năng?',
+  feedbackLink:'Mở Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'Định dạng JSON',toolBase64:'Mã hóa/Giải mã Base64',
+  toolUrlEnc:'Mã hóa/Giải mã URL',toolTimestamp:'Chuyển đổi timestamp',
+  toolRegex:'Kiểm tra Regex',toolSql:'Định dạng SQL',toolQrcode:'Tạo mã QR',
+  format:'Định dạng',compress:'Nén',validate:'Xác thực',clear:'Xóa',
+  encode:'Mã hóa',decode:'Giải mã',result:'Kết quả',copyResult:'Sao chép kết quả',
+  jsonInput:'Đầu vào JSON',jsonOutput:'Kết quả',
+  jsonErr:'Lỗi JSON',jsonValid:'JSON hợp lệ',jsonInvalid:'JSON không hợp lệ',
+  jsonKeys:'khóa cấp cao nhất',jsonType:'Kiểu là',
+  b64Input:'Văn bản đầu vào',b64Encode:'Mã hóa',b64Decode:'Giải mã',
+  b64Err:'Mã hóa thất bại',b64Invalid:'Chuỗi Base64 không hợp lệ',
+  urlInput:'Văn bản đầu vào',urlEncode:'Mã hóa',urlDecode:'Giải mã',urlErr:'Giải mã thất bại',
+  tsNowMs:'Timestamp hiện tại (ms)',
+  tsToDate:'Timestamp → Ngày',tsToDateBtn:'Chuyển sang ngày',
+  tsDateTo:'Ngày → Timestamp',tsDateToBtn:'Chuyển sang timestamp',
+  tsInputPh:'Nhập timestamp (giây hoặc mili giây)...',
+  tsDatePh:'Nhập ngày (vd: 2024-01-01)...',
+  tsGetNow:'Lấy TS hiện tại',tsGetDate:'Lấy ngày hiện tại',
+  tsInvalid:'Timestamp không hợp lệ',tsInvalidDate:'Không thể phân tích định dạng ngày',
+  tsIso:'ISO 8601',tsLocal:'Giờ địa phương',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Biểu thức chính quy',regexTestText:'Văn bản kiểm tra',
+  regexReplace:'Văn bản thay thế (tùy chọn)',regexMatchResult:'Kết quả',
+  regexTestMatch:'Kiểm tra',regexNoMatch:'Không khớp',
+  regexFound:'Tìm thấy {0} kết quả',regexMatchList:'Danh sách kết quả',
+  regexReplacePreview:'Xem trước thay thế',regexGroup:'Nhóm',regexEmpty:'(trống)',
+  regexTplEmail:'Email',regexTplUrl:'URL',regexTplPhone:'Điện thoại (quốc tế)',
+  regexTplIp:'Địa chỉ IP',regexTplChinese:'Tiếng Trung',regexTplNumber:'Số',
+  regexTplDate:'Ngày YYYY-MM-DD',
+  sqlInput:'Đầu vào SQL',sqlDialect:'Phương ngữ',
+  sqlErr:'Định dạng thất bại',sqlCompressErr:'Nén thất bại',
+  qrInput:'Văn bản hoặc URL',qrGenerate:'Tạo',qrDownload:'Tải PNG',
+  qrEnterText:'Nhập văn bản và nhấn Tạo',qrNotReady:'Thư viện QR chưa sẵn sàng',
+  qrGenerating:'Đang tạo...',qrFailed:'Tạo thất bại',qrDownloaded:'Đã tải mã QR',
+  qrMustGen:'Vui lòng tạo mã QR trước',
+  jsonSearch:'Tìm kiếm khóa/giá trị...',jsonSearchNoMatch:'Không tìm thấy',jsonSearchCount:'{0} / {1}',
+  jsonExpandAll:'Mở tất cả',jsonCollapseAll:'Thu gọn tất cả',jsonTreeView:'Cây',jsonRawView:'Văn bản',
+  jsonKeyCount:'{0} khóa',jsonArrayCount:'{0} phần tử',
+  jsonDiff:'So sánh',jsonDiffLeft:'JSON trái',jsonDiffRight:'JSON phải',
+  jsonDiffCompare:'So sánh',jsonDiffIdentical:'Giống nhau — không có khác biệt',
+  jsonDiffSummary:'Tóm tắt',jsonDiffAdded:'Thêm',jsonDiffRemoved:'Xóa',
+  jsonDiffChanged:'Sửa',jsonDiffTypeChanged:'Đổi kiểu',jsonDiffTotalDiffs:'{0} khác biệt',
+  jsonDiffCopyReport:'Sao chép báo cáo',jsonDiffLeftOnly:'(chỉ trái)',jsonDiffRightOnly:'(chỉ phải)'
+},
+th:{
+  appTitle:'DevToolbox — ชุดเครื่องมือสำหรับนักพัฒนา',
+  footerText:'ข้อมูลถูกจัดเก็บในเครื่องเท่านั้น',clearCache:'ล้างแคช',
+  clearConfirm:'ล้างข้อมูลแคชทั้งหมด? การดำเนินการนี้ไม่สามารถยกเลิกได้',
+  cleared:'ล้างข้อมูลแคชทั้งหมดแล้ว',chars:'ตัวอักษร',lines:'บรรทัด',
+  copied:'คัดลอกไปยังคลิปบอร์ดแล้ว',copyFailed:'คัดลอกล้มเหลว กรุณาคัดลอกด้วยตนเอง',
+  loading:'กำลังโหลดไลบรารี...',loadFailed:'ไลบรารียังไม่พร้อม กรุณารีเฟรชหน้า',
+  retry:'ลองใหม่',waiting:'รอการป้อนข้อมูล...',empty:'ข้อมูลว่างเปล่า',
+  feedbackText:'พบบั๊ก? มีข้อเสนอแนะ?',
+  feedbackLink:'เปิด Issue →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'จัดรูปแบบ JSON',toolBase64:'เข้ารหัส/ถอดรหัส Base64',
+  toolUrlEnc:'เข้ารหัส/ถอดรหัส URL',toolTimestamp:'แปลง timestamp',
+  toolRegex:'ทดสอบ Regex',toolSql:'จัดรูปแบบ SQL',toolQrcode:'สร้าง QR Code',
+  format:'จัดรูปแบบ',compress:'บีบอัด',validate:'ตรวจสอบ',clear:'ล้าง',
+  encode:'เข้ารหัส',decode:'ถอดรหัส',result:'ผลลัพธ์',copyResult:'คัดลอกผลลัพธ์',
+  jsonInput:'อินพุต JSON',jsonOutput:'ผลลัพธ์',
+  jsonErr:'ข้อผิดพลาด JSON',jsonValid:'JSON ถูกต้อง',jsonInvalid:'JSON ไม่ถูกต้อง',
+  jsonKeys:'คีย์ระดับบนสุด',jsonType:'ประเภทคือ',
+  b64Input:'ข้อความต้นฉบับ',b64Encode:'เข้ารหัส',b64Decode:'ถอดรหัส',
+  b64Err:'การเข้ารหัสล้มเหลว',b64Invalid:'สตริง Base64 ไม่ถูกต้อง',
+  urlInput:'ข้อความต้นฉบับ',urlEncode:'เข้ารหัส',urlDecode:'ถอดรหัส',urlErr:'การถอดรหัสล้มเหลว',
+  tsNowMs:'Timestamp ปัจจุบัน (ms)',
+  tsToDate:'Timestamp → วันที่',tsToDateBtn:'แปลงเป็นวันที่',
+  tsDateTo:'วันที่ → Timestamp',tsDateToBtn:'แปลงเป็น timestamp',
+  tsInputPh:'ป้อน timestamp (วินาทีหรือมิลลิวินาที)...',
+  tsDatePh:'ป้อนวันที่ (เช่น 2024-01-01)...',
+  tsGetNow:'TS ปัจจุบัน',tsGetDate:'วันที่ปัจจุบัน',
+  tsInvalid:'Timestamp ไม่ถูกต้อง',tsInvalidDate:'ไม่รู้จักรูปแบบวันที่',
+  tsIso:'ISO 8601',tsLocal:'เวลาท้องถิ่น',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'นิพจน์ปกติ',regexTestText:'ข้อความทดสอบ',
+  regexReplace:'ข้อความแทนที่ (ไม่บังคับ)',regexMatchResult:'ผลลัพธ์',
+  regexTestMatch:'ทดสอบ',regexNoMatch:'ไม่พบรายการที่ตรงกัน',
+  regexFound:'พบ {0} รายการ',regexMatchList:'รายการที่ตรงกัน',
+  regexReplacePreview:'ตัวอย่างการแทนที่',regexGroup:'กลุ่ม',regexEmpty:'(ว่าง)',
+  regexTplEmail:'อีเมล',regexTplUrl:'URL',regexTplPhone:'โทรศัพท์ (ระหว่างประเทศ)',
+  regexTplIp:'ที่อยู่ IP',regexTplChinese:'ภาษาจีน',regexTplNumber:'ตัวเลข',
+  regexTplDate:'วันที่ YYYY-MM-DD',
+  sqlInput:'อินพุต SQL',sqlDialect:'ภาษา',
+  sqlErr:'การจัดรูปแบบล้มเหลว',sqlCompressErr:'การบีบอัดล้มเหลว',
+  qrInput:'ข้อความหรือ URL',qrGenerate:'สร้าง',qrDownload:'ดาวน์โหลด PNG',
+  qrEnterText:'ป้อนข้อความและคลิกสร้าง',qrNotReady:'ไลบรารี QR ยังไม่พร้อม',
+  qrGenerating:'กำลังสร้าง...',qrFailed:'การสร้างล้มเหลว',qrDownloaded:'ดาวน์โหลด QR code แล้ว',
+  qrMustGen:'กรุณาสร้าง QR code ก่อน',
+  jsonSearch:'ค้นหาคีย์/ค่า...',jsonSearchNoMatch:'ไม่พบผลลัพธ์',jsonSearchCount:'{0} จาก {1}',
+  jsonExpandAll:'ขยายทั้งหมด',jsonCollapseAll:'ย่อทั้งหมด',jsonTreeView:'ต้นไม้',jsonRawView:'ข้อความ',
+  jsonKeyCount:'{0} คีย์',jsonArrayCount:'{0} รายการ',
+  jsonDiff:'เปรียบเทียบ',jsonDiffLeft:'JSON ซ้าย',jsonDiffRight:'JSON ขวา',
+  jsonDiffCompare:'เปรียบเทียบ',jsonDiffIdentical:'เหมือนกัน — ไม่พบความแตกต่าง',
+  jsonDiffSummary:'สรุป',jsonDiffAdded:'เพิ่ม',jsonDiffRemoved:'ลบ',
+  jsonDiffChanged:'แก้ไข',jsonDiffTypeChanged:'เปลี่ยนประเภท',jsonDiffTotalDiffs:'{0} ความแตกต่าง',
+  jsonDiffCopyReport:'คัดลอกรายงาน',jsonDiffLeftOnly:'(ซ้ายเท่านั้น)',jsonDiffRightOnly:'(ขวาเท่านั้น)'
+},
+hu:{
+  appTitle:'DevToolbox — Fejlesztői eszköztár',
+  footerText:'Adatok csak helyben tárolva',clearCache:'Gyorsítótár törlése',
+  clearConfirm:'Törli az összes gyorsítótárazott adatot? Ez a művelet nem vonható vissza.',
+  cleared:'Minden gyorsítótárazott adat törölve',chars:'karakter',lines:'sor',
+  copied:'Vágólapra másolva',copyFailed:'Másolás sikertelen, másolja kézzel',
+  loading:'Függőségek betöltése...',loadFailed:'a könyvtár nincs inicializálva, frissítse az oldalt',
+  retry:'Újra',waiting:'Bevitelre vár...',empty:'A bemenet üres',
+  feedbackText:'Hibát találtál? Van javaslatod?',
+  feedbackLink:'Issue létrehozása →',
+  navJson:'JSON',navBase64:'Base64',navUrl:'URL',navTimestamp:'Timestamp',
+  navRegex:'Regex',navSql:'SQL',navQrcode:'QR Code',
+  toolJson:'JSON formázó',toolBase64:'Base64 kódolás/dekódolás',
+  toolUrlEnc:'URL kódolás/dekódolás',toolTimestamp:'Timestamp átalakító',
+  toolRegex:'Regex tesztelő',toolSql:'SQL formázó',toolQrcode:'QR kód generátor',
+  format:'Formázás',compress:'Tömörítés',validate:'Ellenőrzés',clear:'Törlés',
+  encode:'Kódolás',decode:'Dekódolás',result:'Eredmény',copyResult:'Eredmény másolása',
+  jsonInput:'JSON bemenet',jsonOutput:'Eredmény',
+  jsonErr:'JSON hiba',jsonValid:'Érvényes JSON',jsonInvalid:'Érvénytelen JSON',
+  jsonKeys:'felső szintű kulcs',jsonType:'A típus',
+  b64Input:'Bemeneti szöveg',b64Encode:'Kódolás',b64Decode:'Dekódolás',
+  b64Err:'Kódolás sikertelen',b64Invalid:'Érvénytelen Base64 karakterlánc',
+  urlInput:'Bemeneti szöveg',urlEncode:'Kódolás',urlDecode:'Dekódolás',urlErr:'Dekódolás sikertelen',
+  tsNowMs:'Aktuális timestamp (ms)',
+  tsToDate:'Timestamp → Dátum',tsToDateBtn:'Konvertálás dátummá',
+  tsDateTo:'Dátum → Timestamp',tsDateToBtn:'Konvertálás timestamp-pé',
+  tsInputPh:'Adja meg a timestamp-et (másodperc vagy ezredmásodperc)...',
+  tsDatePh:'Adja meg a dátumot (pl. 2024-01-01)...',
+  tsGetNow:'Aktuális TS',tsGetDate:'Aktuális dátum',
+  tsInvalid:'Érvénytelen timestamp',tsInvalidDate:'A dátumformátum nem ismerhető fel',
+  tsIso:'ISO 8601',tsLocal:'Helyi idő',tsUtc:'UTC',tsSec:'Timestamp (s)',
+  tsMs:'Timestamp (ms)',
+  regexPattern:'Reguláris kifejezés',regexTestText:'Teszt szöveg',
+  regexReplace:'Csere szöveg (opcionális)',regexMatchResult:'Találatok',
+  regexTestMatch:'Tesztelés',regexNoMatch:'Nincs találat',
+  regexFound:'{0} találat',regexMatchList:'Találati lista',
+  regexReplacePreview:'Csere előnézet',regexGroup:'Csoport',regexEmpty:'(üres)',
+  regexTplEmail:'E-mail',regexTplUrl:'URL',regexTplPhone:'Telefon (nemzetközi)',
+  regexTplIp:'IP-cím',regexTplChinese:'Kínai',regexTplNumber:'Szám',
+  regexTplDate:'Dátum ÉÉÉÉ-HH-NN',
+  sqlInput:'SQL bemenet',sqlDialect:'Dialektus',
+  sqlErr:'Formázás sikertelen',sqlCompressErr:'Tömörítés sikertelen',
+  qrInput:'Szöveg vagy URL',qrGenerate:'Generálás',qrDownload:'PNG letöltése',
+  qrEnterText:'Írjon be szöveget és kattintson a Generálás gombra',qrNotReady:'QR könyvtár nem áll készen',
+  qrGenerating:'Generálás...',qrFailed:'Generálás sikertelen',qrDownloaded:'QR kód letöltve',
+  qrMustGen:'Először generáljon egy QR kódot',
+  jsonSearch:'Kulcsok/értékek keresése...',jsonSearchNoMatch:'Nincs találat',jsonSearchCount:'{0} / {1}',
+  jsonExpandAll:'Összes kinyitása',jsonCollapseAll:'Összes bezárása',jsonTreeView:'Fa',jsonRawView:'Nyers',
+  jsonKeyCount:'{0} kulcs',jsonArrayCount:'{0} elem',
+  jsonDiff:'Diff',jsonDiffLeft:'Bal JSON',jsonDiffRight:'Jobb JSON',
+  jsonDiffCompare:'Összehasonlítás',jsonDiffIdentical:'Azonos — nincs eltérés',
+  jsonDiffSummary:'Összegzés',jsonDiffAdded:'Hozzáadva',jsonDiffRemoved:'Eltávolítva',
+  jsonDiffChanged:'Módosítva',jsonDiffTypeChanged:'Típus változott',jsonDiffTotalDiffs:'{0} eltérés',
+  jsonDiffCopyReport:'Jelentés másolása',jsonDiffLeftOnly:'(csak bal)',jsonDiffRightOnly:'(csak jobb)'
+}};
+
+let currentLang = 'en';
+function t(key, ...args){
+  let s = (TR[currentLang] && TR[currentLang][key]) || (TR.en && TR.en[key]) || key;
+  args.forEach((a,i)=>s=s.replace('{'+i+'}',a));
+  return s;
+}
+
+function applyLang(){
+  const l=currentLang;
+  document.documentElement.lang=l;
+  document.title=t('appTitle');
+  document.getElementById('fabFeedbackText').textContent=t('feedbackLink').replace(' →','');
+  document.getElementById('fabClearText').textContent=t('clearCache');
+  document.querySelectorAll('.lang-option').forEach(o=>o.classList.toggle('active',o.dataset.lang===l));
+  ['json-format','base64','url-encode','timestamp','regex','sql-format','qrcode-gen'].forEach(tool=>{
+    const btn=document.querySelector('.pill-item[data-tool="'+tool+'"]');
+    if(btn)btn.textContent=t(TOOL_NAV_KEY[tool]);
+  });
+  renderCurrentTool();
+}
+
+function buildLangSelector(){
+  const dd=document.getElementById('langDropdown');
+  dd.innerHTML='';
+  Object.entries(LANG_NAMES).forEach(([code,name])=>{
+    const btn=document.createElement('button');
+    btn.className='lang-option';btn.dataset.lang=code;
+    btn.textContent=name;
+    btn.onclick=()=>{currentLang=code;localStorage.setItem('devtools:lang',code);applyLang();document.getElementById('langSwitcher').classList.remove('open')};
+    dd.appendChild(btn);
+  });
+  document.getElementById('langTrigger').onclick=()=>{
+    document.getElementById('langSwitcher').classList.toggle('open');
+  };
+}
+
+function initLang(){
+  const saved=localStorage.getItem('devtools:lang');
+  if(saved && LANG_NAMES[saved])currentLang=saved;
+  else{const navLang=(navigator.language||'en').split('-')[0];if(LANG_NAMES[navLang])currentLang=navLang}
+  buildLangSelector();
+  applyLang();
+}
+
+// ──── Tool i18n key mapping ────
+const TOOL_NAV_KEY = { 'json-format':'navJson','base64':'navBase64','url-encode':'navUrl','timestamp':'navTimestamp','regex':'navRegex','sql-format':'navSql','qrcode-gen':'navQrcode' };
+const TOOL_NAME_KEY = { 'json-format':'toolJson','base64':'toolBase64','url-encode':'toolUrlEnc','timestamp':'toolTimestamp','regex':'toolRegex','sql-format':'toolSql','qrcode-gen':'toolQrcode' };
+
+// ──── Tools Config ────
+const TOOLS = {
+  'json-format':{title:'JSON Formatter',render:renderJsonFormat},
+  'base64':{title:'Base64 Encode/Decode',render:renderBase64},
+  'url-encode':{title:'URL Encode/Decode',render:renderUrlEncode},
+  'timestamp':{title:'Timestamp Converter',render:renderTimestamp},
+  'regex':{title:'Regex Tester',render:renderRegex},
+  'sql-format':{title:'SQL Formatter',render:renderSqlFormat},
+  'qrcode-gen':{title:'QR Code Generator',render:renderQrcodeGen}
+};
+
+const CDN = {
+  'qrcode':'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
+  'sql-formatter':'https://cdn.jsdelivr.net/npm/sql-formatter@15.4.0/dist/sql-formatter.min.js'
+};
+const CDN_FALLBACK={'qrcode':'https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js'};
+const CDN_TIMEOUT=15000;
+
+let currentTool='json-format';
+let toolTimers={};
+
+// ──── Toast ────
+function showToast(msg,type='info'){
+  const el=document.createElement('div');
+  el.className='toast toast-'+type;el.textContent=msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// ──── Copy ────
+function copyToClipboard(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast(t('copied'),'success')).catch(()=>fallbackCopy(text));
+  }else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;
+  ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast(t('copied'),'success')}catch(e){showToast(t('copyFailed'),'error')}
+  document.body.removeChild(ta);
+}
+
+// ──── Storage ────
+const MAX_STORAGE=500*1024;
+function saveState(tool,key,value){
+  try{
+    if(value.length>MAX_STORAGE)value=value.substring(0,MAX_STORAGE);
+    localStorage.setItem('devtools:'+tool+':'+key,value);
+  }catch(e){}
+}
+function loadState(tool,key){return localStorage.getItem('devtools:'+tool+':'+key)||''}
+function clearAllState(){
+  Object.keys(localStorage).filter(k=>k.startsWith('devtools:')&&!k.startsWith('devtools:lang')).forEach(k=>localStorage.removeItem(k));
+  showToast(t('cleared'),'success');
+}
+
+// ──── CDN Loader ────
+const loadedCDN={},cdnCallbacks={};
+function loadCDN(name,url,globalVar,useFallback){
+  return new Promise((resolve,reject)=>{
+    if(loadedCDN[name]){resolve(window[globalVar]);return}
+    if(cdnCallbacks[name]){cdnCallbacks[name].push({resolve,reject});return}
+    cdnCallbacks[name]=[{resolve,reject}];let resolved=false;
+    const finalize=(err,result)=>{
+      if(resolved)return;resolved=true;
+      const cbs=cdnCallbacks[name];delete cdnCallbacks[name];
+      err?cbs.forEach(cb=>cb.reject(err)):(loadedCDN[name]=true,cbs.forEach(cb=>cb.resolve(result)));
+    };
+    const script=document.createElement('script');script.src=url;
+    const tid=setTimeout(()=>{script.remove();
+      if(!useFallback&&CDN_FALLBACK[name]){
+        cdnCallbacks[name]=[{resolve,reject}];
+        const fs=document.createElement('script');fs.src=CDN_FALLBACK[name];
+        const ft=setTimeout(()=>{fs.remove();finalize(new Error('Timeout'))},CDN_TIMEOUT);
+        fs.onload=()=>{clearTimeout(ft);finalize(null,window[globalVar])};
+        fs.onerror=()=>{clearTimeout(ft);finalize(new Error('Fail'))};
+        document.head.appendChild(fs);
+      }else finalize(new Error('Timeout'));
+    },CDN_TIMEOUT);
+    script.onload=()=>{clearTimeout(tid);finalize(null,window[globalVar])};
+    script.onerror=()=>{clearTimeout(tid);script.remove();
+      if(!useFallback&&CDN_FALLBACK[name]){
+        cdnCallbacks[name]=[{resolve,reject}];
+        const fs=document.createElement('script');fs.src=CDN_FALLBACK[name];
+        const ft=setTimeout(()=>{fs.remove();finalize(new Error('Timeout'))},CDN_TIMEOUT);
+        fs.onload=()=>{clearTimeout(ft);finalize(null,window[globalVar])};
+        fs.onerror=()=>{clearTimeout(ft);finalize(new Error('Fail'))};
+        document.head.appendChild(fs);
+      }else finalize(new Error('Fail'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// ──── Router ────
+function navigateTo(tool){
+  if(!TOOLS[tool])tool='json-format';
+  currentTool=tool;window.location.hash=tool;
+  document.querySelectorAll('.pill-item').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
+  renderCurrentTool();
+}
+
+function renderCurrentTool(){
+  const container=document.getElementById('toolContent');
+  Object.values(toolTimers).forEach(t=>clearInterval(t));toolTimers={};
+  const cfg=TOOLS[currentTool];
+  const needsCDN={'qrcode-gen':['qrcode'],'sql-format':['sql-formatter']};
+  const allLoaded=needsCDN[currentTool]?needsCDN[currentTool].every(n=>!!loadedCDN[n]):true;
+  if(needsCDN[currentTool]&&!allLoaded){
+    container.innerHTML='<div class="loading-overlay"><div class="spinner"></div> '+t('loading')+'</div>';
+    Promise.all(needsCDN[currentTool].map(name=>{
+      return loadCDN(name,CDN[name],name==='sql-formatter'?'sqlFormatter':'qrcode').then(lib=>{
+        if(lib===undefined||lib===null)throw new Error(t('loadFailed'));
+        return lib;
+      });
+    })).then(()=>cfg.render(container)).catch(err=>{
+      container.innerHTML='<div class="error-msg">'+err.message+'<br><br><button class="btn btn-secondary btn-sm" onclick="retryLoadTool()">'+t('retry')+'</button></div>';
+      window._retryTool=currentTool;
+    });
+  }else cfg.render(container);
+}
+
+window.retryLoadTool=function(){
+  const tool=window._retryTool||currentTool;
+  if(tool==='qrcode-gen')loadedCDN['qrcode']=false;
+  else if(tool==='sql-format')loadedCDN['sql-formatter']=false;
+  navigateTo(tool);
+};
+
+window.addEventListener('hashchange',()=>{
+  const tool=window.location.hash.replace('#','')||'json-format';
+  if(tool!==currentTool)navigateTo(tool);
+});
+
+// ──── Pill Nav Click ────
+document.getElementById('pillNav').addEventListener('click',e=>{
+  const item=e.target.closest('.pill-item');
+  if(item)navigateTo(item.dataset.tool);
+});
+
+// ──── Clear All ────
+function clearAllData(){
+  if(confirm(t('clearConfirm')))clearAllState();
+}
+
+// ──── FAB Toggle ────
+function toggleFab(){
+  const g=document.getElementById('fabGroup');
+  g.classList.toggle('open');
+}
+// close FAB & lang dropdown on outside click
+document.addEventListener('click',function(e){
+  const g=document.getElementById('fabGroup');
+  if(g && g.classList.contains('open') && !g.contains(e.target))g.classList.remove('open');
+  const ls=document.getElementById('langSwitcher');
+  if(ls && ls.classList.contains('open') && !ls.contains(e.target))ls.classList.remove('open');
+});
+
+// ──── Char Count ────
+function updateInlineCounter(id){
+  const el=document.getElementById(id);if(!el)return;
+  const counter=document.querySelector('.input-counter[data-for="'+id+'"]');
+  if(!counter)return;
+  const v=el.value;const lines=v?v.split('\n').length:0;const chars=v?v.length:0;
+  counter.textContent=chars+' '+t('chars')+' / '+lines+' '+t('lines');
+}
+
+// ──── Helpers ────
+function makeTextarea(id,placeholder,rows){
+  return '<div class="input-wrap"><textarea id="'+id+'" placeholder="'+placeholder+'" rows="'+(rows||8)+'" class="tool-input"></textarea><span class="input-counter" data-for="'+id+'">0 '+t('chars')+' / 0 '+t('lines')+'</span></div>';
+}
+function autoSaveInput(tool,id){
+  const el=document.getElementById(id);if(!el)return;
+  el.value=loadState(tool,id);
+  const handler=()=>{saveState(tool,id,el.value);updateInlineCounter(id)};
+  el.addEventListener('input',handler);
+  handler();
+}
+function escapeHtml(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML}
+
+/* ================================================================
+   Tool: JSON Formatter
+   ================================================================ */
+let _jsonMode='format'; // 'format' | 'diff'
+
+function renderJsonFormat(container){
+  container.innerHTML='<div class="tool-panel">'
+    +'<div class="json-mode-bar">'
+    +'<button class="json-mode-btn'+(_jsonMode==='format'?' active':'')+'" data-mode="format" onclick="switchJsonMode(\'format\')">'+t('format')+'</button>'
+    +'<button class="json-mode-btn'+(_jsonMode==='diff'?' active':'')+'" data-mode="diff" onclick="switchJsonMode(\'diff\')">'+t('jsonDiff')+'</button>'
+    +'</div>'
+    // Format mode — side by side cards
+    +'<div id="json-format-panel" class="json-format-split" style="'+(_jsonMode==='format'?'':'display:none')+'">'
+    // Left card: input
+    +'<div class="json-panel json-input-panel">'
+    +'<div class="json-panel-head"><h3>'+t('jsonInput')+'</h3></div>'
+    +'<div class="json-panel-body">'+makeTextarea('json-input',t('waiting'),12)+'</div>'
+    +'<div class="json-panel-foot">'
+    +'<button class="btn btn-primary btn-sm" onclick="formatJson()">'+t('format')+'</button>'
+    +'<button class="btn-ghost" onclick="compressJson()">'+t('compress')+'</button>'
+    +'<button class="btn-ghost" onclick="validateJson()">'+t('validate')+'</button>'
+    +'<span style="flex:1"></span>'
+    +'<button class="btn-ghost" onclick="document.getElementById(\'json-input\').value=\'\';saveState(\'json-format\',\'json-input\',\'\');updateInlineCounter(\'json-input\');document.getElementById(\'json-output\').innerHTML=\'<div class=json-tree-empty>\'+t(\'waiting\')+\'</div>\'">'+t('clear')+'</button>'
+    +'</div></div>'
+    // Right card: output
+    +'<div class="json-panel json-output-panel">'
+    +'<div class="json-panel-head"><h3>'+t('jsonOutput')+'</h3><div class="json-panel-head-right">'
+    +'<div class="json-view-toggle">'
+    +'<button class="view-toggle-btn active" data-view="tree" onclick="switchJsonView(\'tree\')">'+t('jsonTreeView')+'</button>'
+    +'<button class="view-toggle-btn" data-view="raw" onclick="switchJsonView(\'raw\')">'+t('jsonRawView')+'</button>'
+    +'</div>'
+    +'<button class="btn-ghost" id="json-search-toggle" onclick="toggleJsonSearch()" title="Search">&#x1F50D;</button>'
+    +'</div></div>'
+    // Collapsible search bar
+    +'<div class="json-search-bar" id="json-search-bar">'
+    +'<div class="json-search-input-wrap"><span class="json-search-icon">&#x1F50D;</span>'
+    +'<input type="text" class="json-search-input" id="json-search-input" placeholder="'+t('jsonSearch')+'">'
+    +'<button class="json-search-clear" id="json-search-clear" hidden onclick="clearJsonSearch()">&times;</button>'
+    +'</div>'
+    +'<div class="json-search-nav" id="json-search-nav" hidden>'
+    +'<button class="btn-ghost" onclick="jsonSearchNav(-1)" title="Previous">&#x25B2;</button>'
+    +'<span class="json-search-count" id="json-search-count">0 / 0</span>'
+    +'<button class="btn-ghost" onclick="jsonSearchNav(1)" title="Next">&#x25BC;</button>'
+    +'</div>'
+    +'</div>'
+    // Output body
+    +'<div class="json-panel-body">'
+    +'<div class="json-output-wrapper"><div class="result-box json-tree" id="json-output"><div class="json-tree-empty">'+t('waiting')+'</div></div></div>'
+    +'</div>'
+    // Output footer
+    +'<div class="json-panel-foot">'
+    +'<button class="btn-ghost" onclick="jsonExpandAll()">&#x229E; '+t('jsonExpandAll')+'</button>'
+    +'<button class="btn-ghost" onclick="jsonCollapseAll()">&#x229F; '+t('jsonCollapseAll')+'</button>'
+    +'<button class="btn-ghost" onclick="copyJsonResult()">&#x1F4CB; '+t('copyResult')+'</button>'
+    +'<button class="btn-ghost" id="btn-add-to-diff" onclick="addToDiff()">&#x1F4CA; '+t('jsonAddToDiff')+'</button>'
+    +'<span style="flex:1"></span>'
+    +'<span class="json-stats" id="json-stats"></span>'
+    +'</div></div>'
+    +'</div>'
+    // Diff mode content — side by side panels with inline diff
+    +'<div id="json-diff-panel" class="json-format-split" style="'+(_jsonMode==='diff'?'':'display:none')+'">'
+    +'<div class="json-panel json-diff-left-panel">'
+    +'<div class="json-panel-head"><h3>'+t('jsonDiffLeft')+'</h3></div>'
+    +'<div class="json-panel-body">'+makeTextarea('json-diff-left',t('waiting'),12)+'</div>'
+    +'<div class="json-panel-foot">'
+    +'<button class="btn btn-primary btn-sm" onclick="compareJson()">'+t('jsonDiffCompare')+'</button>'
+    +'<button class="btn-ghost" onclick="clearJsonDiff()">'+t('clear')+'</button>'
+    +'<span style="flex:1"></span>'
+    +'<span class="json-stats" id="json-diff-stats"></span>'
+    +'</div></div>'
+    +'<div class="json-panel json-diff-right-panel">'
+    +'<div class="json-panel-head"><h3>'+t('jsonDiffRight')+'</h3>'
+    +'<div class="json-panel-head-right">'
+    +'<button class="btn-ghost" id="json-diff-prev" onclick="jsonDiffNav(-1)" style="display:none">&#x25B2;</button>'
+    +'<span id="json-diff-nav-count" class="json-diff-nav-count" style="display:none"></span>'
+    +'<button class="btn-ghost" id="json-diff-next" onclick="jsonDiffNav(1)" style="display:none">&#x25BC;</button>'
+    +'</div></div>'
+    +'<div class="json-panel-body">'+makeTextarea('json-diff-right',t('waiting'),12)+'</div>'
+    +'<div class="json-panel-foot"><span style="flex:1"></span></div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+  autoSaveInput('json-format','json-input');
+  autoSaveInput('json-format','json-diff-left');
+  autoSaveInput('json-format','json-diff-right');
+  // setup search debounce
+  const si=document.getElementById('json-search-input');
+  if(si){
+    let tid=0;
+    si.addEventListener('input',function(){
+      clearTimeout(tid);
+      const clearBtn=document.getElementById('json-search-clear');
+      if(this.value)clearBtn.hidden=false;else{clearBtn.hidden=true;clearJsonSearch()}
+      tid=setTimeout(function(){performJsonSearch(si.value)},300);
+    });
+    si.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();performJsonSearch(si.value);jsonSearchNav(e.shiftKey?-1:1)}
+      if(e.key==='Escape'){si.value='';clearJsonSearch()}
+    });
+  }
+}
+// ──── Robust JSON Pipeline ────
+let _lastJsonText='';
+let _jsonTreeData=null;      // cached parsed data for view switching
+let _jsonViewMode='tree';    // 'tree' | 'raw'
+
+// --- JSON Tree Rendering Engine ---
+function renderJsonOutput(){
+  const o=document.getElementById('json-output');
+  const d=_jsonTreeData;
+  if(!d){o.innerHTML='<div class="json-tree-empty">'+t('waiting')+'</div>';updateJsonStats(null);return}
+  // warning banner
+  let top='';
+  if(d.warning)top+='<div class="json-warning-banner">&#x26A0; '+escapeHtml(d.warning)+'</div>';
+  // content
+  if(_jsonViewMode==='raw'){
+    const result=d.raw?prettyFormatJsonStr(d.raw):JSON.stringify(d.data,null,2);
+    top+='<pre class="json-raw-view">'+escapeHtml(result)+'</pre>';
+    o.innerHTML=top;
+    clearJsonSearch();
+    return
+  }
+  // tree view
+  const tree=buildJsonTree(d.data,null,0,2,'$');
+  o.innerHTML=top;
+  o.appendChild(tree);
+  clearJsonSearch();
+  // re-apply any active search
+  const si=document.getElementById('json-search-input');
+  if(si&&si.value.trim().length>=2){performJsonSearch(si.value)}
+}
+
+function buildJsonTree(data,key,depth,maxExpand,path){
+  const frag=document.createDocumentFragment();
+  const isArr=Array.isArray(data);
+  const isObj=data!==null&&typeof data==='object'&&!isArr;
+  const isPrimitive=!isObj&&!isArr;
+
+  if(isPrimitive){
+    // leaf node: key: value line
+    const line=createJsonLine(depth,path);
+    if(typeof key==='string'){
+      line.appendChild(createJsPunct('"'+key+'"','json-key'));
+      line.appendChild(createJsPunct(': ','json-punct'));
+    }
+    line.appendChild(createPrimitiveNode(data));
+    frag.appendChild(line);
+    return frag
+  }
+
+  const childrenCount=isArr?data.length:Object.keys(data).length;
+  const isEmpty=childrenCount===0;
+  const shouldExpand=isEmpty?false:depth<maxExpand;
+  const bracketOpen=isArr?'[':'{';
+  const bracketClose=isArr?']':'}';
+  const typeName=isArr?'Array':'Object';
+
+  // opening bracket line
+  const openLine=createJsonLine(depth,path);
+  openLine.classList.add('json-node-collapsible');
+  openLine.setAttribute('data-depth',depth);
+  openLine.setAttribute('data-path',path);
+  if(typeof key==='string'){
+    openLine.appendChild(createJsPunct('"'+key+'"','json-key'));
+    openLine.appendChild(createJsPunct(': ','json-punct'));
+  }
+  if(!isEmpty){
+    const toggle=document.createElement('span');
+    toggle.className='json-toggle'+(shouldExpand?'':' json-collapsed');
+    toggle.textContent='\u25BC';
+    toggle.addEventListener('click',function(e){e.stopPropagation();toggleJsonNode(openLine)});
+    openLine.appendChild(toggle);
+  }
+  openLine.appendChild(createJsPunct(bracketOpen,'json-punct'));
+  if(!isEmpty){
+    // type badge
+    const typeBadge=document.createElement('span');
+    typeBadge.className='json-type-badge '+(isArr?'json-type-array':'json-type-object');
+    typeBadge.textContent=typeName;
+    if(shouldExpand)typeBadge.style.display='none';
+    openLine.appendChild(typeBadge);
+    // count badge (arrays only)
+    if(isArr){
+      const countBadge=document.createElement('span');
+      countBadge.className='json-count-badge';
+      countBadge.textContent=childrenCount;
+      if(shouldExpand)countBadge.style.display='none';
+      openLine.appendChild(countBadge);
+    }
+    // collapsed inline close bracket
+    const inlineClose=document.createElement('span');
+    inlineClose.className='json-collapsed-close json-punct';
+    inlineClose.textContent=bracketClose;
+    if(!shouldExpand)inlineClose.style.display='inline';else inlineClose.style.display='none';
+    openLine.appendChild(inlineClose);
+  }
+  openLine.addEventListener('click',function(e){
+    if(e.target.closest('.json-toggle'))return;
+    toggleJsonNode(openLine)
+  });
+  frag.appendChild(openLine);
+
+  // children
+  const childrenDiv=document.createElement('div');
+  childrenDiv.className='json-node-children'+(shouldExpand?'':' json-collapsed');
+  if(!isEmpty&&!shouldExpand)childrenDiv.style.maxHeight='0';else childrenDiv.style.maxHeight='none';
+  const entries=isArr?data.map((v,i)=>[i,v]):Object.entries(data);
+  entries.forEach(function(_a,_i){
+    var _k=_a[0],_v=_a[1];
+    childrenDiv.appendChild(buildJsonTree(_v,isArr?_i:_k,depth+1,maxExpand,path+(isArr?('['+_i+']'):'.'+_k)));
+    if(_i<entries.length-1){
+      var last=childrenDiv.lastElementChild;
+      if(last){var comma=document.createElement('span');comma.className='json-punct';comma.textContent=',';last.appendChild(comma)}
+    }
+  });
+  if(!isEmpty)frag.appendChild(childrenDiv);
+
+  // closing bracket line
+  const closeLine=createJsonLine(depth,path);
+  closeLine.appendChild(createJsPunct(bracketClose,'json-punct'));
+  closeLine.setAttribute('data-close-for',path);
+  closeLine.classList.add('json-node-close');
+  if(!isEmpty&&!shouldExpand)closeLine.style.display='none';
+  frag.appendChild(closeLine);
+
+  return frag
+}
+
+function createJsonLine(depth,path){
+  const line=document.createElement('div');
+  line.className='json-node-line';
+  line.style.paddingLeft=(depth*18+12)+'px';
+  line.setAttribute('data-depth',depth);
+  line.setAttribute('data-path',path);
+  return line
+}
+
+function createJsPunct(text,cls){
+  const span=document.createElement('span');
+  span.className=cls;
+  span.textContent=text;
+  return span
+}
+
+function createPrimitiveNode(value){
+  if(value===null)return createJsPunct('null','json-null');
+  const t=typeof value;
+  if(t==='string'){
+    const display=restoreEscapes(JSON.stringify(value));
+    return createJsPunct(display,'json-string')
+  }
+  if(t==='number')return createJsPunct(String(value),'json-number');
+  if(t==='boolean')return createJsPunct(String(value),'json-boolean');
+  return createJsPunct(String(value),'json-null')
+}
+
+function toggleJsonNode(openLine){
+  // Find childrenDiv — it's always the immediate next sibling
+  var childrenDiv=openLine.nextElementSibling;
+  if(childrenDiv&&!childrenDiv.classList.contains('json-node-children'))childrenDiv=null;
+  var toggleIcon=openLine.querySelector('.json-toggle');
+  var inlineClose=openLine.querySelector('.json-collapsed-close');
+  var typeBadge=openLine.querySelector('.json-type-badge');
+  var countBadge=openLine.querySelector('.json-count-badge');
+  if(!childrenDiv&&!toggleIcon)return;
+  var isCollapsed=childrenDiv?childrenDiv.classList.contains('json-collapsed'):true;
+  var closeLine=childrenDiv?childrenDiv.nextElementSibling:null;
+  if(closeLine&&!closeLine.classList.contains('json-node-close'))closeLine=null;
+
+  if(isCollapsed){
+    // Expand
+    childrenDiv.classList.remove('json-collapsed');
+    childrenDiv.style.maxHeight='';
+    if(toggleIcon)toggleIcon.classList.remove('json-collapsed');
+    if(inlineClose)inlineClose.style.display='none';
+    if(typeBadge)typeBadge.style.display='none';
+    if(countBadge)countBadge.style.display='none';
+    if(closeLine)closeLine.style.display='';
+  }else{
+    // Collapse
+    childrenDiv.classList.add('json-collapsed');
+    childrenDiv.style.maxHeight='0';
+    if(toggleIcon)toggleIcon.classList.add('json-collapsed');
+    if(inlineClose)inlineClose.style.display='inline';
+    if(typeBadge)typeBadge.style.display='inline-block';
+    if(countBadge)countBadge.style.display='inline-block';
+    if(closeLine)closeLine.style.display='none';
+  }
+}
+
+function jsonExpandAll(){
+  var out=document.getElementById('json-output');
+  out.querySelectorAll('.json-node-children').forEach(function(c){c.classList.remove('json-collapsed');c.style.maxHeight=''});
+  out.querySelectorAll('.json-toggle').forEach(function(t){t.classList.remove('json-collapsed')});
+  out.querySelectorAll('.json-collapsed-close').forEach(function(p){p.style.display='none'});
+  out.querySelectorAll('.json-type-badge').forEach(function(b){b.style.display='none'});
+  out.querySelectorAll('.json-count-badge').forEach(function(b){b.style.display='none'});
+  out.querySelectorAll('.json-node-close').forEach(function(c){c.style.display=''});
+}
+function jsonCollapseAll(){
+  var out=document.getElementById('json-output');
+  out.querySelectorAll('.json-node-children').forEach(function(c){c.classList.add('json-collapsed');c.style.maxHeight='0'});
+  out.querySelectorAll('.json-toggle').forEach(function(t){t.classList.add('json-collapsed')});
+  out.querySelectorAll('.json-collapsed-close').forEach(function(p){p.style.display='inline'});
+  out.querySelectorAll('.json-type-badge').forEach(function(b){b.style.display='inline-block'});
+  out.querySelectorAll('.json-count-badge').forEach(function(b){b.style.display='inline-block'});
+  out.querySelectorAll('.json-node-close').forEach(function(c){c.style.display='none'});
+}
+function switchJsonView(mode){
+  _jsonViewMode=mode;
+  document.querySelectorAll('.view-toggle-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-view')===mode)});
+  renderJsonOutput()
+}
+
+// --- JSON Search Engine ---
+let _jsonSearchState={matches:[],currentIndex:-1,query:''};
+function performJsonSearch(query){
+  _jsonSearchState.query=query;
+  clearJsonHighlights();
+  const nav=document.getElementById('json-search-nav');
+  const count=document.getElementById('json-search-count');
+  if(!query||query.length<2){
+    _jsonSearchState.matches=[];_jsonSearchState.currentIndex=-1;
+    nav.hidden=true;count.textContent='0 / 0';
+    return
+  }
+  const allLines=document.querySelectorAll('#json-output .json-node-line');
+  const matches=[];
+  const lowerQ=query.toLowerCase();
+  allLines.forEach(function(line){
+    var text=line.textContent.toLowerCase();
+    if(text.includes(lowerQ)){
+      var spans=line.querySelectorAll('.json-key,.json-string,.json-number,.json-boolean,.json-null');
+      var found=false;
+      spans.forEach(function(span){
+        var idx=span.textContent.toLowerCase().indexOf(lowerQ);
+        if(idx>=0){
+          var orig=span.textContent;
+          span.innerHTML=escapeHtml(orig.substring(0,idx))
+            +'<span class="json-search-match">'+escapeHtml(orig.substring(idx,idx+query.length))+'</span>'
+            +escapeHtml(orig.substring(idx+query.length));
+          found=true
+        }
+      });
+      if(found)matches.push(line)
+    }
+  });
+  _jsonSearchState.matches=matches;
+  _jsonSearchState.currentIndex=matches.length>0?0:-1;
+  if(matches.length>0){
+    nav.hidden=false;
+    count.textContent=t('jsonSearchCount','1',String(matches.length));
+    // expand ancestors
+    expandAncestors(matches[0]);
+    // highlight first as active
+    var firstMatch=matches[0].querySelector('.json-search-match');
+    if(firstMatch)firstMatch.classList.add('json-search-active');
+    matches[0].scrollIntoView({behavior:'smooth',block:'center'});
+  }else{
+    nav.hidden=true;count.textContent='0 / 0'
+  }
+}
+function jsonSearchNav(direction){
+  var st=_jsonSearchState;
+  if(st.matches.length===0)return;
+  // remove current active
+  var active=document.querySelector('#json-output .json-search-active');
+  if(active)active.classList.remove('json-search-active');
+  // compute new index (wrap)
+  st.currentIndex=(st.currentIndex+direction+st.matches.length)%st.matches.length;
+  var line=st.matches[st.currentIndex];
+  expandAncestors(line);
+  var match=line.querySelector('.json-search-match');
+  if(match)match.classList.add('json-search-active');
+  line.scrollIntoView({behavior:'smooth',block:'center'});
+  var count=document.getElementById('json-search-count');
+  count.textContent=t('jsonSearchCount',String(st.currentIndex+1),String(st.matches.length))
+}
+function clearJsonHighlights(){
+  document.querySelectorAll('#json-output .json-search-match,#json-output .json-search-active').forEach(function(s){
+    s.outerHTML=s.textContent
+  })
+}
+function toggleJsonSearch(){
+  const bar=document.getElementById('json-search-bar');
+  const inp=document.getElementById('json-search-input');
+  if(!bar)return;
+  bar.classList.toggle('open');
+  if(bar.classList.contains('open')&&inp)inp.focus()
+}
+function clearJsonSearch(){
+  clearJsonHighlights();
+  _jsonSearchState={matches:[],currentIndex:-1,query:''};
+  var nav=document.getElementById('json-search-nav');
+  var count=document.getElementById('json-search-count');
+  var clearBtn=document.getElementById('json-search-clear');
+  if(nav)nav.hidden=true;
+  if(count)count.textContent='0 / 0';
+  if(clearBtn)clearBtn.hidden=true;
+  var si=document.getElementById('json-search-input');
+  if(si)si.value=''
+}
+function expandAncestors(node){
+  var p=node.parentElement;
+  while(p&&p!==document.getElementById('json-output')){
+    if(p.classList.contains('json-node-children')){
+      p.classList.remove('json-collapsed');
+      p.style.maxHeight='';
+      // Walk backwards to find the matching openLine
+      var openLine=p.previousElementSibling;
+      while(openLine&&!openLine.classList.contains('json-node-collapsible')){
+        openLine=openLine.previousElementSibling
+      }
+      if(openLine){
+        var tog=openLine.querySelector('.json-toggle');
+        var ic=openLine.querySelector('.json-collapsed-close');
+        var tb=openLine.querySelector('.json-type-badge');
+        var cb=openLine.querySelector('.json-count-badge');
+        if(tog)tog.classList.remove('json-collapsed');
+        if(ic)ic.style.display='none';
+        if(tb)tb.style.display='none';
+        if(cb)cb.style.display='none';
+        var closeLine=p.nextElementSibling;
+        if(closeLine&&closeLine.classList.contains('json-node-close')){
+          closeLine.style.display='';
+        }
+      }
+    }
+    p=p.parentElement
+  }
+}
+function updateJsonStats(nodeCount){
+  var stats=document.getElementById('json-stats');
+  if(stats)stats.textContent=nodeCount!==null?nodeCount+' '+t('lines'):''
+}
+
+// State machine: escape real newlines inside JSON string values
+function escapeNewlinesInStrings(str){
+  // Literal newlines inside JSON strings are always invalid — they are paste
+  // artifacts (line-wrap, log truncation).  Remove them rather than escaping
+  // to \n so that "userId\nList" becomes "userIdList", not a key with \n.
+  let r='',inS=false,esc=false;
+  for(let i=0;i<str.length;i++){
+    const c=str[i];
+    if(esc){esc=false;r+=c;continue}
+    if(c==='\\'){esc=true;r+=c;continue}
+    if(c==='"'){inS=!inS;r+=c;continue}
+    if(inS&&(c==='\n'||c==='\r'))continue;
+    r+=c
+  }
+  return r
+}
+
+function prettyFormatJsonStr(s){
+  let r='',ind=0,inS=false;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(inS){
+      r+=c;
+      if(c==='\\'&&i+1<s.length){i++;r+=s[i]}
+      else if(c==='"')inS=false;
+      continue
+    }
+    if(c==='"'){inS=true;r+=c}
+    else if(c==='{'||c==='['){r+=c+'\n'+'  '.repeat(++ind)}
+    else if(c==='}'||c===']'){r+='\n'+'  '.repeat(--ind)+c}
+    else if(c===','){r+=c+'\n'+'  '.repeat(ind)}
+    else if(c===':'){r+=': '}
+    else if(/\s/.test(c)){}
+    else r+=c
+  }
+  return r
+}
+
+function preserveUnicodeEscapes(jsonStr){
+  let r='',inS=false;
+  for(let i=0;i<jsonStr.length;i++){
+    const c=jsonStr[i];
+    if(!inS){if(c==='"')inS=true;r+=c;continue}
+    if(c==='\\'&&i+5<jsonStr.length&&jsonStr[i+1]==='u'){
+      const hex=jsonStr.substring(i+2,i+6);
+      if(/^[0-9a-fA-F]{4}$/.test(hex)){r+='\uE000'+hex+'\uE001';i+=5;continue}
+    }
+    if(c==='\\'&&i+1<jsonStr.length){r+=c+jsonStr[i+1];i++;continue}
+    if(c==='"')inS=false;
+    r+=c
+  }
+  return r
+}
+
+function restoreEscapes(str){
+  return str.replace(/\uE000([0-9a-fA-F]{4})\uE001/g,'\\u$1')
+}
+
+function sanitizeJSON(raw){
+  let s=raw;
+  s=s.replace(/^\uFEFF/,'');                                       // BOM
+  s=s.replace(/\r\n/g,'\n').replace(/\r/g,'\n');                   // CRLF → LF
+  s=escapeNewlinesInStrings(s);
+  s=s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g,'');             // invisible ctrl
+  return s
+}
+
+function tryAutoFix(str){
+  const names={trailing:t('jsonFixTrailing'),quotes:t('jsonFixQuotes'),keys:t('jsonFixKeys'),escBrackets:t('jsonFixEscBrackets'),escAmpersand:t('jsonFixEscAmpersand'),curlyQuotes:t('jsonFixCurlyQuotes')};
+  const fixes=[
+    {name:names.trailing,fn:s=>s.replace(/,\s*([}\]])/g,'$1')},
+    {name:names.quotes,   fn:s=>s.replace(/'([^'\\]*(\\.[^'\\]*)*)'/g,'"$1"')},
+    {name:names.keys,     fn:s=>s.replace(/([{,]\s*)([a-zA-Z_$][\w$]*)\s*:/g,'$1"$2":')},
+    {name:names.escBrackets,fn:s=>s.replace(/\\\[/g,'[').replace(/\\\]/g,']')},
+    {name:names.escAmpersand,fn:s=>s.replace(/\\&/g,'&')},
+    {name:names.curlyQuotes,fn:s=>s.replace(/[\u201C\u201D]/g,'"').replace(/[\u2018\u2019]/g,"'")}
+  ];
+  // try individual fixes first
+  for(const f of fixes){
+    const fixed=f.fn(str);
+    try{JSON.parse(fixed);return{raw:fixed,fix:f.name}}catch(e){}
+  }
+  // try applying all fixes cumulatively
+  let s=str;const applied=[];
+  for(const f of fixes){const next=f.fn(s);if(next!==s){applied.push(f.name);s=next}}
+  if(applied.length>1){
+    try{JSON.parse(s);return{raw:s,fix:applied.join(' + ')}}catch(e){}
+  }
+  return null
+}
+
+function deepParseJSON(obj,depth,maxDepth){
+  if(depth>=maxDepth)return obj;
+  if(typeof obj==='string'){
+    const t=obj.trim();
+    if((t.startsWith('{')&&t.endsWith('}'))||(t.startsWith('[')&&t.endsWith(']'))){
+      try{return deepParseJSON(JSON.parse(t),depth+1,maxDepth)}catch(e){}
+    }
+    return obj
+  }
+  if(Array.isArray(obj))return obj.map(v=>deepParseJSON(v,depth,maxDepth));
+  if(obj&&typeof obj==='object'){
+    const r={};
+    for(const[k,v]of Object.entries(obj))r[k]=deepParseJSON(v,depth,maxDepth);
+    return r
+  }
+  return obj
+}
+
+function friendlyJsonError(raw,errMsg){
+  const m=errMsg.match(/position (\d+)/i);
+  if(!m)return errMsg;
+  const p=parseInt(m[1],10);
+  const near=raw.substring(Math.max(0,p-30),Math.min(raw.length,p+30));
+  return errMsg+' ← "…'+near.replace(/[\n\r]/g,'↵')+'…"'
+}
+
+function tryParseJSON(){
+  const input=document.getElementById('json-input').value.trim();
+  if(!input)return{error:t('empty')};
+  const raw=input;
+  const sanitized=sanitizeJSON(raw);
+  // Step 1: direct parse (preserve \uXXXX escapes)
+  try{const p=preserveUnicodeEscapes(sanitized);return{data:deepParseJSON(JSON.parse(p),0,5),raw:sanitized}}catch(e1){}
+  // Step 2: auto-fix common issues
+  const fixed=tryAutoFix(sanitized);
+  if(fixed){try{const p=preserveUnicodeEscapes(fixed.raw);return{data:deepParseJSON(JSON.parse(p),0,5),raw:fixed.raw,warning:t('jsonAutoFixed',fixed.fix)}}catch(e){}}
+  // Step 3: friendly error
+  try{JSON.parse(sanitized)}catch(e2){return{error:friendlyJsonError(sanitized.substring(0,200),e2.message)}}
+  return{error:'Unknown parse error'}
+}
+
+function formatJson(){
+  const r=tryParseJSON(),o=document.getElementById('json-output');
+  if(r.error){o.innerHTML='<span style="color:var(--error)">'+t('jsonErr')+': '+escapeHtml(r.error)+'</span>';_lastJsonText='';_jsonTreeData=null;updateJsonStats(null);return}
+  const result=JSON.stringify(r.data,null,2);_lastJsonText=result;
+  _jsonTreeData={data:r.data,warning:r.warning,raw:r.raw};
+  _jsonViewMode='tree';
+  renderJsonOutput()
+}
+
+function compressJson(){
+  const r=tryParseJSON(),o=document.getElementById('json-output');
+  if(r.error){o.innerHTML='<span style="color:var(--error)">'+t('jsonErr')+': '+escapeHtml(r.error)+'</span>';_lastJsonText='';_jsonTreeData=null;updateJsonStats(null);return}
+  const result=JSON.stringify(r.data);_lastJsonText=result;
+  _jsonTreeData={data:r.data,warning:r.warning,raw:r.raw};
+  _jsonViewMode='raw';
+  renderJsonOutput()
+}
+
+function validateJson(){
+  const r=tryParseJSON(),o=document.getElementById('json-output');
+  if(r.error){o.innerHTML='<span style="color:var(--error)">&#x274C; '+t('jsonInvalid')+':<br>'+escapeHtml(r.error)+'</span>';_lastJsonText='';_jsonTreeData=null;updateJsonStats(null);return}
+  const keys=Array.isArray(r.data)?r.data.length:Object.keys(r.data||{}).length;
+  _lastJsonText='';
+  _jsonTreeData={data:r.data,warning:r.warning,raw:r.raw};
+  _jsonViewMode='tree';
+  let h='<span style="color:var(--success)">&#x2705; '+t('jsonValid')+'</span> &mdash; '+keys+' '+t('jsonKeys')+', '+t('jsonType')+' '+(Array.isArray(r.data)?'Array':'Object');
+  if(r.warning)h+='<br><span style="color:var(--warning);font-size:12px">&#x26A0; '+escapeHtml(r.warning)+'</span>';
+  o.innerHTML=h;
+  updateJsonStats(keys)
+}
+
+function copyJsonResult(){
+  if(_lastJsonText){copyToClipboard(restoreEscapes(_lastJsonText));return}
+  if(_jsonTreeData&&_jsonTreeData.data){copyToClipboard(restoreEscapes(JSON.stringify(_jsonTreeData.data,null,2)));return}
+  const o=document.getElementById('json-output'),pre=o.querySelector('pre');
+  const text=pre?pre.textContent.trim():o.textContent.trim();
+  if(text&&text!==t('waiting'))copyToClipboard(text)
+}
+
+/* ================================================================
+   JSON Diff Engine
+   ================================================================ */
+let _diffSlotLeft='';
+let _diffSlotRight='';
+
+window.addToDiff=function(){
+  // Get current formatted JSON text
+  let text='';
+  if(_lastJsonText){text=restoreEscapes(_lastJsonText)}
+  else if(_jsonTreeData&&_jsonTreeData.raw){text=prettyFormatJsonStr(_jsonTreeData.raw)}
+  else if(_jsonTreeData){text=JSON.stringify(_jsonTreeData.data,null,2)}
+  if(!text){showToast(t('empty'));return}
+
+  if(!_diffSlotLeft){
+    _diffSlotLeft=text;
+    showToast(t('jsonDiffLeft')+' ✓ (1/2)');
+  }else if(!_diffSlotRight){
+    _diffSlotRight=text;
+    showToast(t('jsonDiffSlotFull'));
+    // Fill both slots and switch to diff mode
+    setTimeout(function(){
+      switchJsonMode('diff');
+      const lEl=document.getElementById('json-diff-left');
+      const rEl=document.getElementById('json-diff-right');
+      if(lEl){lEl.value=_diffSlotLeft;saveState('json-format','json-diff-left',_diffSlotLeft);updateInlineCounter('json-diff-left')}
+      if(rEl){rEl.value=_diffSlotRight;saveState('json-format','json-diff-right',_diffSlotRight);updateInlineCounter('json-diff-right')}
+      _diffSlotLeft='';_diffSlotRight='';
+      // Auto-compare
+      setTimeout(compareJson,100);
+    },300);
+  }else{
+    // Both full — reset and put in left
+    _diffSlotLeft=text;_diffSlotRight='';
+    showToast(t('jsonDiffLeft')+' ✓ (1/2)');
+  }
+};
+
+window.switchJsonMode=function(mode){
+  _jsonMode=mode;
+  document.querySelectorAll('.json-mode-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mode')===mode)});
+  var fp=document.getElementById('json-format-panel');
+  var dp=document.getElementById('json-diff-panel');
+  if(fp)fp.style.display=mode==='format'?'':'none';
+  if(dp)dp.style.display=mode==='diff'?'':'none';
+};
+
+// --- Deep Diff Algorithm ---
+function deepDiff(left,right,path,maxDepth){
+  if(!maxDepth)maxDepth=50;
+  if(getDepthFromPath(path)>=maxDepth){
+    return simpleDiff(left,right,path);
+  }
+  // null checks
+  if(left===null&&right===null)return null;
+  if(left===null)return{path:path,type:'changed',leftValue:left,rightValue:right,leftType:'null',rightType:typeof right};
+  if(right===null)return{path:path,type:'changed',leftValue:left,rightValue:right,leftType:typeof left,rightType:'null'};
+  // type check
+  var lt=typeof left,rt=typeof right;
+  if(lt!==rt){
+    // arrays are typeof object, handle separately
+    var lArr=Array.isArray(left),rArr=Array.isArray(right);
+    if(!(lArr||rArr)){
+      return{path:path,type:'type_changed',leftValue:left,rightValue:right,leftType:lt,rightType:rt};
+    }
+  }
+  // primitives
+  if(lt!=='object'){
+    if(left===right)return null;
+    return{path:path,type:'changed',leftValue:left,rightValue:right,leftType:lt,rightType:rt};
+  }
+  // arrays
+  var lIsArr=Array.isArray(left),rIsArr=Array.isArray(right);
+  if(lIsArr&&rIsArr)return diffArray(left,right,path,maxDepth);
+  if(lIsArr&&!rIsArr)return{path:path,type:'type_changed',leftValue:left,rightValue:right,leftType:'array',rightType:'object'};
+  if(!lIsArr&&rIsArr)return{path:path,type:'type_changed',leftValue:left,rightValue:right,leftType:'object',rightType:'array'};
+  // objects
+  return diffObject(left,right,path,maxDepth);
+}
+
+function simpleDiff(left,right,path){
+  if(left===right)return null;
+  return{path:path,type:'changed',leftValue:left,rightValue:right,leftType:typeof left,rightType:typeof right};
+}
+
+function getDepthFromPath(p){
+  if(!p||p==='$')return 0;
+  var d=0;for(var i=0;i<p.length;i++)if(p[i]==='.'||p[i]==='[')d++;return d;
+}
+
+function diffObject(left,right,path,maxDepth){
+  var allKeys=new Set([].concat(Object.keys(left),Object.keys(right)));
+  var children=[];
+  var hasDiff=false;
+  allKeys.forEach(function(key){
+    var childPath=path+'.'+key;
+    var inLeft=key in left,inRight=key in right;
+    if(!inLeft){
+      children.push({path:childPath,type:'added',rightValue:right[key],rightType:typeof right[key]});
+      hasDiff=true;
+    }else if(!inRight){
+      children.push({path:childPath,type:'removed',leftValue:left[key],leftType:typeof left[key]});
+      hasDiff=true;
+    }else{
+      var result=deepDiff(left[key],right[key],childPath,maxDepth);
+      if(result){children.push(result);hasDiff=true}
+    }
+  });
+  return hasDiff?{path:path,type:'changed',children:children}:null;
+}
+
+function diffArray(left,right,path,maxDepth){
+  var children=[];
+  var hasDiff=false;
+  var maxLen=Math.max(left.length,right.length);
+  for(var i=0;i<maxLen;i++){
+    var childPath=path+'['+i+']';
+    if(i>=left.length){
+      children.push({path:childPath,type:'added',rightValue:right[i],rightType:typeof right[i]});
+      hasDiff=true;
+    }else if(i>=right.length){
+      children.push({path:childPath,type:'removed',leftValue:left[i],leftType:typeof left[i]});
+      hasDiff=true;
+    }else{
+      var result=deepDiff(left[i],right[i],childPath,maxDepth);
+      if(result){children.push(result);hasDiff=true}
+    }
+  }
+  return hasDiff?{path:path,type:'changed',children:children}:null;
+}
+
+// --- Diff Stats ---
+function countDiffs(diffEntry){
+  var counts={added:0,removed:0,changed:0,type_changed:0,total:0};
+  function walk(e){
+    if(e.type==='added'||e.type==='removed'){
+      counts[e.type]++;counts.total++;
+    }else if(e.type==='type_changed'){
+      counts.type_changed++;counts.total++;
+    }else if(e.type==='changed'){
+      if(e.children&&e.children.length>0){
+        e.children.forEach(walk);
+      }else{
+        counts.changed++;counts.total++;
+      }
+    }
+  }
+  if(diffEntry)walk(diffEntry);
+  return counts;
+}
+
+// --- Diff Tree Rendering (Side-by-Side) ---
+
+// Flatten JSON to lines with path annotations for side-by-side diff
+function flattenJsonToLines(data, key, depth, path, isArr) {
+  var lines = [];
+  var indent = '  '.repeat(depth);
+  var isArrVal = Array.isArray(data);
+  var isObjVal = data !== null && typeof data === 'object' && !isArrVal;
+
+  if (!isObjVal && !isArrVal) {
+    // primitive
+    var valStr = formatPrimitive(data);
+    var keyStr = key !== null ? (isArr ? indent + key : indent + '"' + key + '"') + ': ' : indent;
+    lines.push({ text: keyStr + valStr, path: path, depth: depth, type: 'primitive' });
+    return lines;
+  }
+
+  var childCount = isArrVal ? data.length : Object.keys(data).length;
+  var openBr = isArrVal ? '[' : '{';
+  var closeBr = isArrVal ? ']' : '}';
+
+  // opening line
+  var openText = key !== null ? (isArr ? indent + key : indent + '"' + key + '"') + ': ' + openBr : indent + openBr;
+  if (childCount === 0) {
+    lines.push({ text: openText + closeBr, path: path, depth: depth, type: 'bracket' });
+    return lines;
+  }
+  lines.push({ text: openText, path: path, depth: depth, type: 'bracket_open' });
+
+  var entries = isArrVal ? data.map(function(v, i) { return [i, v]; }) : Object.entries(data);
+  entries.forEach(function(entry, idx) {
+    var k = entry[0], v = entry[1];
+    var childPath = path + (isArrVal ? '[' + k + ']' : '.' + k);
+    var childLines = flattenJsonToLines(v, isArrVal ? k : k, depth + 1, childPath, isArrVal);
+    lines = lines.concat(childLines);
+  });
+
+  lines.push({ text: indent + closeBr, path: path, depth: depth, type: 'bracket_close' });
+  return lines;
+}
+
+function formatPrimitive(val) {
+  if (val === null) return 'null';
+  if (typeof val === 'string') return '"' + val + '"';
+  return String(val);
+}
+
+// Build path-to-diffType map from diff result
+function buildDiffPathMap(diffEntry) {
+  var map = {};
+  function walk(e) {
+    map[e.path] = e;
+    if (e.children) e.children.forEach(walk);
+  }
+  if (diffEntry) walk(diffEntry);
+  return map;
+}
+
+// Find the closest diff for a given path (check ancestors)
+function findDiffForPath(diffMap, path) {
+  if (diffMap[path]) return diffMap[path];
+  // check parent paths
+  var parts = path.split(/\.|\[|\]/).filter(Boolean);
+  for (var i = parts.length - 1; i > 0; i--) {
+    var parentPath = '$';
+    for (var j = 0; j < i; j++) {
+      var seg = parts[j];
+      if (/^\d+$/.test(seg)) parentPath += '[' + seg + ']';
+      else parentPath += '.' + seg;
+    }
+    if (diffMap[parentPath]) return diffMap[parentPath];
+  }
+  return null;
+}
+
+// Main compare: build side-by-side view
+let _diffMatchedLines = [];
+let _diffCurrentIndex = -1;
+
+window.compareJson = function() {
+  var leftEl = document.getElementById('json-diff-left');
+  var rightEl = document.getElementById('json-diff-right');
+  var statsEl = document.getElementById('json-diff-stats');
+  if (!leftEl || !rightEl) return;
+
+  var leftText = leftEl.value.trim();
+  var rightText = rightEl.value.trim();
+  if (!leftText || !rightText) {
+    if (statsEl) statsEl.textContent = '';
+    return;
+  }
+
+  var leftData, rightData;
+  try { leftData = deepParseJSON(JSON.parse(sanitizeJSON(leftText)), 0, 5); } catch (e) {
+    if (statsEl) statsEl.innerHTML = '<span style="color:var(--error)">' + t('jsonErr') + ' (Left): ' + escapeHtml(e.message) + '</span>';
+    return;
+  }
+  try { rightData = deepParseJSON(JSON.parse(sanitizeJSON(rightText)), 0, 5); } catch (e) {
+    if (statsEl) statsEl.innerHTML = '<span style="color:var(--error)">' + t('jsonErr') + ' (Right): ' + escapeHtml(e.message) + '</span>';
+    return;
+  }
+
+  var result = deepDiff(leftData, rightData, '$', 50);
+  _lastDiffResult = result;
+
+  // Find panel bodies to render diff inline
+  var leftPanel = document.querySelector('.json-diff-left-panel .json-panel-body');
+  var rightPanel = document.querySelector('.json-diff-right-panel .json-panel-body');
+
+  if (!result) {
+    if (statsEl) statsEl.innerHTML = '<span style="color:var(--success)">&#x2705; ' + t('jsonDiffIdentical') + '</span>';
+    hideDiffNav();
+    if(leftPanel)leftPanel.innerHTML='<pre class="json-diff-inline identical">'+escapeHtml(JSON.stringify(leftData,null,2))+'</pre>';
+    if(rightPanel)rightPanel.innerHTML='<pre class="json-diff-inline identical">'+escapeHtml(JSON.stringify(rightData,null,2))+'</pre>';
+    return;
+  }
+
+  var counts = countDiffs(result);
+  var diffMap = buildDiffPathMap(result);
+
+  var leftLines = flattenJsonToLines(leftData, null, 0, '$', Array.isArray(leftData));
+  var rightLines = flattenJsonToLines(rightData, null, 0, '$', Array.isArray(rightData));
+
+  // Render inline diff into each panel body
+  if(leftPanel) leftPanel.innerHTML = '<pre class="json-diff-inline" id="json-diff-code-left">'+renderDiffPaneLines(leftLines, diffMap, 'left')+'</pre>';
+  if(rightPanel) rightPanel.innerHTML = '<pre class="json-diff-inline" id="json-diff-code-right">'+renderDiffPaneLines(rightLines, diffMap, 'right')+'</pre>';
+
+  // Update compare button to show "Edit" option
+  var compBtn = document.querySelector('.json-diff-left-panel .json-panel-foot .btn-primary');
+  if(compBtn){compBtn.textContent=t('editBack');compBtn.onclick=function(){
+    // Save current texts to localStorage first, then restore textareas
+    saveState('json-format','json-diff-left',leftText);
+    saveState('json-format','json-diff-right',rightText);
+    if(leftPanel)leftPanel.innerHTML=makeTextarea('json-diff-left',t('waiting'),12);
+    if(rightPanel)rightPanel.innerHTML=makeTextarea('json-diff-right',t('waiting'),12);
+    autoSaveInput('json-format','json-diff-left');
+    autoSaveInput('json-format','json-diff-right');
+    if(statsEl)statsEl.textContent='';
+    hideDiffNav();
+    compBtn.textContent=t('jsonDiffCompare');
+    compBtn.onclick=compareJson;
+  }}
+
+  // Setup sync scroll
+  setupDiffSyncScroll();
+
+  // Stats
+  if (statsEl) {
+    var parts = [];
+    if (counts.added > 0) parts.push('<span class="json-diff-stat-added">+' + counts.added + ' ' + t('jsonDiffAdded') + '</span>');
+    if (counts.removed > 0) parts.push('<span class="json-diff-stat-removed">-' + counts.removed + ' ' + t('jsonDiffRemoved') + '</span>');
+    if (counts.changed > 0) parts.push('<span class="json-diff-stat-changed">~' + counts.changed + ' ' + t('jsonDiffChanged') + '</span>');
+    if (counts.type_changed > 0) parts.push('<span class="json-diff-stat-type-changed">' + counts.type_changed + ' ' + t('jsonDiffTypeChanged') + '</span>');
+    statsEl.innerHTML = t('jsonDiffTotalDiffs', counts.total) + ' &nbsp;' + parts.join(' ');
+  }
+
+  // Collect diff lines for navigation
+  _diffMatchedLines = [];
+  var leftCodeEl = document.getElementById('json-diff-code-left');
+  if (leftCodeEl) {
+    leftCodeEl.querySelectorAll('.json-diff-hl').forEach(function(el) {
+      _diffMatchedLines.push(el);
+    });
+  }
+  _diffCurrentIndex = -1;
+  if (_diffMatchedLines.length > 0) {
+    showDiffNav();
+  } else {
+    hideDiffNav();
+  }
+};
+
+function renderDiffPaneLines(lines, diffMap, side) {
+  var html = '';
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    var diff = findDiffForPath(diffMap, line.path);
+    var hlClass = '';
+    var marker = ' ';
+
+    if (diff) {
+      if (diff.type === 'added') {
+        hlClass = side === 'right' ? 'json-diff-hl json-diff-hl-added' : 'json-diff-hl json-diff-hl-empty';
+        marker = side === 'right' ? '+' : ' ';
+      } else if (diff.type === 'removed') {
+        hlClass = side === 'left' ? 'json-diff-hl json-diff-hl-removed' : 'json-diff-hl json-diff-hl-empty';
+        marker = side === 'left' ? '-' : ' ';
+      } else if (diff.type === 'type_changed') {
+        hlClass = 'json-diff-hl json-diff-hl-typechanged';
+        marker = '~';
+      } else if (diff.type === 'changed') {
+        // Only highlight leaf lines (primitives) — container lines inherit from children
+        if (line.type === 'primitive') {
+          hlClass = 'json-diff-hl json-diff-hl-changed';
+          marker = '*';
+        }
+      }
+    }
+
+    var lineNum = String(i + 1).padStart(3, ' ');
+    html += '<div class="json-diff-codeline' + (hlClass ? ' ' + hlClass : '') + '" data-line="' + i + '">'
+      + '<span class="json-diff-linenum">' + lineNum + '</span>'
+      + '<span class="json-diff-marker">' + marker + '</span>'
+      + '<span class="json-diff-codetext">' + escapeHtml(line.text) + '</span>'
+      + '</div>';
+  }
+  return html;
+}
+
+// Sync scroll between left and right panes
+function setupDiffSyncScroll() {
+  var leftCode = document.getElementById('json-diff-code-left');
+  var rightCode = document.getElementById('json-diff-code-right');
+  if (!leftCode || !rightCode) return;
+
+  var syncing = false;
+  leftCode.addEventListener('scroll', function() {
+    if (syncing) return;
+    syncing = true;
+    rightCode.scrollTop = leftCode.scrollTop;
+    syncing = false;
+  });
+  rightCode.addEventListener('scroll', function() {
+    if (syncing) return;
+    syncing = true;
+    leftCode.scrollTop = rightCode.scrollTop;
+    syncing = false;
+  });
+}
+
+// Diff navigation (prev/next difference)
+function showDiffNav() {
+  var prev = document.getElementById('json-diff-prev');
+  var next = document.getElementById('json-diff-next');
+  var count = document.getElementById('json-diff-nav-count');
+  if (prev) prev.style.display = '';
+  if (next) next.style.display = '';
+  if (count) count.style.display = '';
+}
+
+function hideDiffNav() {
+  var prev = document.getElementById('json-diff-prev');
+  var next = document.getElementById('json-diff-next');
+  var count = document.getElementById('json-diff-nav-count');
+  if (prev) prev.style.display = 'none';
+  if (next) next.style.display = 'none';
+  if (count) count.style.display = 'none';
+}
+
+window.jsonDiffNav = function(dir) {
+  if (_diffMatchedLines.length === 0) return;
+  // Remove previous active
+  document.querySelectorAll('.json-diff-hl-active').forEach(function(el) { el.classList.remove('json-diff-hl-active'); });
+
+  _diffCurrentIndex = (_diffCurrentIndex + dir + _diffMatchedLines.length) % _diffMatchedLines.length;
+  var el = _diffMatchedLines[_diffCurrentIndex];
+  el.classList.add('json-diff-hl-active');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Sync: find corresponding line in the other pane
+  var lineIdx = el.getAttribute('data-line');
+  var rightCode = document.getElementById('json-diff-code-right');
+  if (rightCode) {
+    var corresponding = rightCode.querySelector('.json-diff-codeline[data-line="' + lineIdx + '"]');
+    if (corresponding) {
+      corresponding.classList.add('json-diff-hl-active');
+      // Also sync scroll for right pane (scrollIntoView would break sync, so we manually sync)
+    }
+  }
+
+  var countEl = document.getElementById('json-diff-nav-count');
+  if (countEl) countEl.textContent = (_diffCurrentIndex + 1) + ' / ' + _diffMatchedLines.length;
+};
+
+window.clearJsonDiff=function(){
+  // Restore textareas in panel bodies
+  var leftPanel=document.querySelector('.json-diff-left-panel .json-panel-body');
+  var rightPanel=document.querySelector('.json-diff-right-panel .json-panel-body');
+  if(leftPanel)leftPanel.innerHTML=makeTextarea('json-diff-left',t('waiting'),12);
+  if(rightPanel)rightPanel.innerHTML=makeTextarea('json-diff-right',t('waiting'),12);
+  var leftEl=document.getElementById('json-diff-left');
+  var rightEl=document.getElementById('json-diff-right');
+  if(leftEl){leftEl.value='';saveState('json-format','json-diff-left','');updateInlineCounter('json-diff-left')}
+  if(rightEl){rightEl.value='';saveState('json-format','json-diff-right','');updateInlineCounter('json-diff-right')}
+  autoSaveInput('json-format','json-diff-left');
+  autoSaveInput('json-format','json-diff-right');
+  var statsEl=document.getElementById('json-diff-stats');
+  if(statsEl)statsEl.textContent='';
+  // Reset compare button
+  var compBtn=document.querySelector('.json-diff-left-panel .json-panel-foot .btn-primary');
+  if(compBtn){compBtn.textContent=t('jsonDiffCompare');compBtn.onclick=compareJson}
+  _lastDiffResult=null;
+  _diffMatchedLines=[];
+  _diffCurrentIndex=-1;
+  hideDiffNav();
+};
+
+/* ================================================================
+   Tool: Base64
+   ================================================================ */
+function renderBase64(container){
+  container.innerHTML='<div class="tool-panel"><div class="tool-row"><div class="tool-col"><label>'+t('b64Input')+'</label>'
+    +makeTextarea('b64-input',t('waiting'),8)
+    +'<div class="tool-actions"><button class="btn btn-primary" onclick="base64Encode()">🔒 '+t('b64Encode')+'</button>'
+    +'<button class="btn btn-primary" onclick="base64Decode()">🔓 '+t('b64Decode')+'</button>'
+    +'<button class="btn btn-secondary" onclick="base64Clear()">'+t('clear')+'</button>'
+    +'</div></div></div><div class="tool-row"><div class="tool-col"><label>'+t('result')+'</label>'
+    +'<div class="result-box" id="b64-output"><span style="color:var(--text-muted)">'+t('waiting')+'</span></div>'
+    +'<div class="tool-actions"><button class="btn btn-sm btn-secondary" onclick="copyToClipboard(document.getElementById(\'b64-output\').textContent.trim())">📋 '+t('copyResult')+'</button></div>'
+    +'</div></div></div>';
+  autoSaveInput('base64','b64-input');
+}
+function base64Encode(){
+  const i=document.getElementById('b64-input').value;const o=document.getElementById('b64-output');
+  if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}
+  try{const bytes=new TextEncoder().encode(i);let b='';bytes.forEach(x=>b+=String.fromCharCode(x));o.textContent=btoa(b)}
+  catch(e){o.innerHTML='<span style="color:var(--error)">'+t('b64Err')+': '+e.message+'</span>'}
+}
+function base64Decode(){
+  const i=document.getElementById('b64-input').value.trim();const o=document.getElementById('b64-output');
+  if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}
+  try{const b=atob(i);const bytes=new Uint8Array(b.length);for(let j=0;j<b.length;j++)bytes[j]=b.charCodeAt(j);o.textContent=new TextDecoder().decode(bytes)}
+  catch(e){o.innerHTML='<span style="color:var(--error)">'+t('b64Invalid')+'</span>'}
+}
+function base64Clear(){
+  document.getElementById('b64-input').value='';document.getElementById('b64-output').innerHTML='<span style="color:var(--text-muted)">'+t('waiting')+'</span>';
+  saveState('base64','b64-input','');updateInlineCounter('b64-input');
+}
+
+/* ================================================================
+   Tool: Timestamp (with Get Now buttons)
+   ================================================================ */
+function renderTimestamp(container){
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+  container.innerHTML='<div class="tool-panel ts-panel">'
+    // Live timestamp hero
+    +'<div class="ts-hero">'
+    +'<div class="ts-hero-value" id="ts-current-value">—</div>'
+    +'<div class="ts-hero-label">'+t('tsNowMs')+'</div>'
+    +'<button class="btn-ghost ts-copy-btn" onclick="copyTsNow()" title="Copy">&#x1F4CB;</button>'
+    +'</div>'
+    // Converter cards
+    +'<div class="ts-convert-grid">'
+    // TS → Date card
+    +'<div class="ts-card">'
+    +'<div class="ts-card-head"><h3>'+t('tsToDate')+'</h3></div>'
+    +'<div class="ts-card-body">'
+    +'<div class="ts-input-row">'
+    +'<input type="text" id="ts-input" placeholder="'+t('tsInputPh')+'">'
+    +'<button class="btn btn-primary btn-sm" onclick="tsToDate()">'+t('tsToDateBtn')+'</button>'
+    +'</div>'
+    +'<div class="ts-quick-btns">'
+    +'<button class="btn-ghost" onclick="getNowTs()">&#x23F1; '+t('tsGetNow')+'</button>'
+    +'</div>'
+    +'<div class="ts-result" id="ts-date-output"><span class="ts-placeholder">'+t('waiting')+'</span></div>'
+    +'</div></div>'
+    // Date → TS card
+    +'<div class="ts-card">'
+    +'<div class="ts-card-head"><h3>'+t('tsDateTo')+'</h3></div>'
+    +'<div class="ts-card-body">'
+    +'<div class="ts-input-row">'
+    +'<input type="text" id="ts-date-input" placeholder="'+t('tsDatePh')+'">'
+    +'<button class="btn btn-primary btn-sm" onclick="dateToTs()">'+t('tsDateToBtn')+'</button>'
+    +'</div>'
+    +'<div class="ts-quick-btns">'
+    +'<button class="btn-ghost" onclick="getNowDate()">&#x1F4C5; '+t('tsGetDate')+'</button>'
+    +'</div>'
+    +'<div class="ts-result" id="ts-output"><span class="ts-placeholder">'+t('waiting')+'</span></div>'
+    +'</div></div>'
+    +'</div>'
+    // Formats
+    +'<div class="ts-formats" id="ts-formats"></div>'
+    // Timezone selector
+    +'<div class="ts-tz-row" id="ts-tz-row">'
+    +'<span class="ts-tz-label">&#x1F30D; '+(t('tsTimezone')||'Timezone')+'</span>'
+    +'</div>'
+    +'</div>';
+  // populate timezone dropdown with common ones
+  const tzRow=document.getElementById('ts-tz-row');
+  const tzSel=document.createElement('select');
+  tzSel.className='ts-tz-select';tzSel.id='ts-tz-select';
+  const localOpt=document.createElement('option');localOpt.value='local';localOpt.textContent=t('tsTzLocal')+' ('+tz+')';tzSel.appendChild(localOpt);
+  const utcOpt=document.createElement('option');utcOpt.value='UTC';utcOpt.textContent='UTC';tzSel.appendChild(utcOpt);
+  ['America/New_York','America/Chicago','America/Denver','America/Los_Angeles','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow','Asia/Shanghai','Asia/Tokyo','Asia/Seoul','Asia/Kolkata','Asia/Dubai','Australia/Sydney','Pacific/Auckland'].forEach(z=>{
+    const opt=document.createElement('option');opt.value=z;opt.textContent=z.replace(/_/g,' ');tzSel.appendChild(opt);
+  });
+  if(tzRow)tzRow.appendChild(tzSel);
+  function updateLiveTs(){const el=document.getElementById('ts-current-value');if(el)el.textContent=Date.now()}
+  updateLiveTs();toolTimers['ts-live']=setInterval(updateLiveTs,1000);
+  autoSaveInput('timestamp','ts-input');autoSaveInput('timestamp','ts-date-input');
+}
+window.copyTsNow=function(){navigator.clipboard.writeText(String(Date.now()));showToast(t('copied')||'Copied!')};
+window.getNowTs=function(){document.getElementById('ts-input').value=Date.now();updateInlineCounter('ts-input');tsToDate()};
+window.getNowDate=function(){
+  const tz=document.getElementById('ts-tz-select').value;
+  const d=new Date();
+  let s;
+  if(tz==='local'){
+    s=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+  }else{
+    const opts={timeZone:tz==='UTC'?'UTC':tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false};
+    const parts=new Intl.DateTimeFormat('sv-SE',opts).formatToParts(d);
+    const get=t=>parts.find(p=>p.type===t)?.value||'';
+    s=get('year')+'-'+get('month')+'-'+get('day')+' '+get('hour')+':'+get('minute')+':'+get('second');
+  }
+  document.getElementById('ts-date-input').value=s;updateInlineCounter('ts-date-input');dateToTs()};
+
+function _getTzOpts(){
+  const tz=document.getElementById('ts-tz-select')?.value||'local';
+  if(tz==='local')return {};
+  return {timeZone:tz==='UTC'?'UTC':tz};
+}
+function tsToDate(){
+  let ts=document.getElementById('ts-input').value.trim();const o=document.getElementById('ts-date-output');
+  if(!ts){o.innerHTML='<span class="ts-placeholder">'+t('empty')+'</span>';return}
+  ts=Number(ts);if(isNaN(ts)){o.innerHTML='<span class="ts-error">'+t('tsInvalid')+'</span>';return}
+  if(ts<10000000000)ts*=1000;
+  const d=new Date(ts);const tzOpts=_getTzOpts();
+  const iso=d.toISOString();
+  const local=d.toLocaleString(undefined,tzOpts);
+  const utc=d.toUTCString();
+  o.innerHTML='<div class="ts-result-line"><span class="ts-result-label">'+t('tsIso')+'</span><span class="ts-result-value">'+iso+'</span></div>'
+    +'<div class="ts-result-line"><span class="ts-result-label">'+t('tsLocal')+'</span><span class="ts-result-value">'+local+'</span></div>'
+    +'<div class="ts-result-line"><span class="ts-result-label">'+t('tsUtc')+'</span><span class="ts-result-value">'+utc+'</span></div>';
+  document.getElementById('ts-formats').innerHTML='<div class="ts-format-item"><div class="fmt-label">'+t('tsIso')+'</div><div class="fmt-value">'+iso+'</div></div><div class="ts-format-item"><div class="fmt-label">'+t('tsLocal')+'</div><div class="fmt-value">'+local+'</div></div><div class="ts-format-item"><div class="fmt-label">RFC 2822</div><div class="fmt-value">'+utc+'</div></div><div class="ts-format-item"><div class="fmt-label">'+t('tsSec')+'</div><div class="fmt-value">'+Math.floor(ts/1000)+'</div></div>';
+}
+function dateToTs(){
+  const i=document.getElementById('ts-date-input').value.trim();const o=document.getElementById('ts-output');
+  if(!i){o.innerHTML='<span class="ts-placeholder">'+t('empty')+'</span>';return}
+  const d=new Date(i);if(isNaN(d.getTime())){o.innerHTML='<span class="ts-error">'+t('tsInvalidDate')+'</span>';return}
+  o.innerHTML='<div class="ts-result-line"><span class="ts-result-label">'+t('tsMs')+'</span><span class="ts-result-value">'+d.getTime()+'</span></div>'
+    +'<div class="ts-result-line"><span class="ts-result-label">'+t('tsSec')+'</span><span class="ts-result-value">'+Math.floor(d.getTime()/1000)+'</span></div>';
+}
+
+/* ================================================================
+   Tool: Regex Tester (international templates)
+   ================================================================ */
+function renderRegex(container){
+  container.innerHTML='<div class="tool-panel"><div class="template-chips" id="regex-templates"></div>'
+    +'<div class="tool-row tool-row-21"><div class="tool-col"><label>'+t('regexPattern')+'</label>'
+    +'<input type="text" id="regex-pattern" placeholder="\\d+">'
+    +'<div style="display:flex;gap:8px;margin-top:2px">'
+    +'<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" id="regex-global" checked> g</label>'
+    +'<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" id="regex-ignorecase"> i</label>'
+    +'<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" id="regex-multiline"> m</label>'
+    +'</div></div><div class="tool-col"><label>'+t('regexTestText')+'</label>'+makeTextarea('regex-text',t('waiting'),6)+'</div></div>'
+    +'<div class="tool-row"><div class="tool-col"><label>'+t('regexReplace')+'</label>'
+    +'<div style="display:flex;gap:8px;align-items:center"><input type="text" id="regex-replace" placeholder="$1" style="flex:1"><button class="btn btn-secondary btn-sm" onclick="regexTest()">'+t('regexTestMatch')+'</button></div>'
+    +'</div></div><div class="tool-row"><div class="tool-col"><label>'+t('regexMatchResult')+'</label>'
+    +'<div class="result-box" id="regex-output" style="min-height:80px"><span style="color:var(--text-muted)">'+t('waiting')+'</span></div>'
+    +'</div></div></div>';
+
+  const templates=[
+    {name:t('regexTplEmail'),pattern:'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'},
+    {name:t('regexTplUrl'),pattern:'https?://[^\\s]+'},
+    {name:t('regexTplPhone'),pattern:'\\+?[1-9]\\d{0,2}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}'},
+    {name:t('regexTplIp'),pattern:'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}'},
+    {name:t('regexTplChinese'),pattern:'[\\u4e00-\\u9fa5]+'},
+    {name:t('regexTplNumber'),pattern:'\\d+'},
+    {name:t('regexTplDate'),pattern:'\\d{4}-\\d{2}-\\d{2}'},
+  ];
+  const tc=document.getElementById('regex-templates');
+  templates.forEach(tmpl=>{
+    const chip=document.createElement('span');chip.className='template-chip';chip.textContent=tmpl.name;chip.title=tmpl.pattern;
+    chip.addEventListener('click',()=>{document.getElementById('regex-pattern').value=tmpl.pattern;saveState('regex','regex-pattern',tmpl.pattern);regexTest()});
+    tc.appendChild(chip);
+  });
+  autoSaveInput('regex','regex-pattern');autoSaveInput('regex','regex-text');
+  ['regex-pattern','regex-text','regex-global','regex-ignorecase','regex-multiline'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.addEventListener('input',()=>regexTest());
+  });
+}
+
+function regexTest(){
+  const ps=document.getElementById('regex-pattern').value;
+  const text=document.getElementById('regex-text').value;
+  const o=document.getElementById('regex-output');
+  const rs=document.getElementById('regex-replace').value;
+  if(!ps){o.innerHTML='<span style="color:var(--text-muted)">'+t('regexPattern')+'</span>';return}
+  let flags='';
+  if(document.getElementById('regex-global').checked)flags+='g';
+  if(document.getElementById('regex-ignorecase').checked)flags+='i';
+  if(document.getElementById('regex-multiline').checked)flags+='m';
+  let p;
+  try{p=new RegExp(ps,flags)}catch(e){o.innerHTML='<span style="color:var(--error)">Re: '+e.message+'</span>';return}
+  const matches=[...text.matchAll(p)];
+  if(matches.length===0){o.innerHTML='<span style="color:var(--warning)">'+t('regexNoMatch')+'</span>';return}
+  let h='<div style="color:var(--success);margin-bottom:8px">'+t('regexFound',matches.length)+'</div>';
+  const hl=text.replace(p,m=>'<span class="regex-highlight-mark">'+m+'</span>');
+  h+='<div style="margin-bottom:12px;line-height:1.8;white-space:pre-wrap;word-break:break-all;font-family:var(--font-mono);font-size:13px">'+hl+'</div>';
+  h+='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">'+t('regexMatchList')+':</div><ul class="regex-group-list">';
+  matches.forEach((m,mi)=>{
+    h+='<li class="regex-group-item"><span style="color:var(--accent);min-width:30px">#'+mi+'</span><span>Index '+m.index+': <code style="color:var(--text-primary)">'+escapeHtml(m[0])+'</code></span>';
+    if(m.length>1){h+='<span style="color:var(--text-muted)">'+t('regexGroup')+': ';for(let gi=1;gi<m.length;gi++)h+='$'+gi+'='+escapeHtml(m[gi]||t('regexEmpty'))+' ';h+='</span>'}
+    h+='</li>';
+  });
+  h+='</ul>';
+  if(rs){const rp=text.replace(p,rs);h+='<div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--border);font-size:12px;color:var(--warning)">'+t('regexReplacePreview')+': '+rp+'</div>'}
+  o.innerHTML=h;
+}
+
+/* ================================================================
+   Tool: URL Encode/Decode
+   ================================================================ */
+function renderUrlEncode(container){
+  container.innerHTML='<div class="tool-panel"><div class="tool-row"><div class="tool-col"><label>'+t('urlInput')+'</label>'
+    +makeTextarea('url-input',t('waiting'),8)
+    +'<div class="tool-actions"><button class="btn btn-primary" onclick="urlEncode()">🔒 '+t('urlEncode')+'</button>'
+    +'<button class="btn btn-primary" onclick="urlDecode()">🔓 '+t('urlDecode')+'</button>'
+    +'<button class="btn btn-secondary" onclick="urlClear()">'+t('clear')+'</button>'
+    +'</div></div></div><div class="tool-row"><div class="tool-col"><label>'+t('result')+'</label>'
+    +'<div class="result-box" id="url-output"><span style="color:var(--text-muted)">'+t('waiting')+'</span></div>'
+    +'<div class="tool-actions"><button class="btn btn-sm btn-secondary" onclick="copyToClipboard(document.getElementById(\'url-output\').textContent.trim())">📋 '+t('copyResult')+'</button></div>'
+    +'</div></div></div>';
+  autoSaveInput('url-encode','url-input');
+}
+function urlEncode(){const i=document.getElementById('url-input').value;const o=document.getElementById('url-output');if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}o.textContent=encodeURIComponent(i)}
+function urlDecode(){const i=document.getElementById('url-input').value.trim();const o=document.getElementById('url-output');if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}try{o.textContent=decodeURIComponent(i)}catch(e){o.innerHTML='<span style="color:var(--error)">'+t('urlErr')+': '+e.message+'</span>'}}
+function urlClear(){document.getElementById('url-input').value='';document.getElementById('url-output').innerHTML='<span style="color:var(--text-muted)">'+t('waiting')+'</span>';saveState('url-encode','url-input','');updateInlineCounter('url-input')}
+
+/* ================================================================
+   Tool: QR Code Generator
+   ================================================================ */
+function renderQrcodeGen(container){
+  container.innerHTML='<div class="tool-panel"><div class="tool-row tool-row-21"><div class="tool-col"><label>'+t('qrInput')+'</label>'
+    +'<textarea id="qr-input" placeholder="'+t('qrInput')+'" rows="4" class="tool-input"></textarea>'
+    +'<div class="tool-actions"><select id="qr-size" style="width:auto;padding:4px 8px"><option value="150">150×150</option><option value="200" selected>200×200</option><option value="300">300×300</option><option value="400">400×400</option></select>'
+    +'<select id="qr-level" style="width:auto;padding:4px 8px"><option value="L">L (7%)</option><option value="M" selected>M (15%)</option><option value="Q">Q (25%)</option><option value="H">H (30%)</option></select>'
+    +'<button class="btn btn-primary btn-sm" onclick="generateQr()">'+t('qrGenerate')+'</button>'
+    +'<button class="btn btn-success btn-sm" onclick="downloadQr()">'+t('qrDownload')+'</button>'
+    +'</div></div><div class="tool-col" style="align-items:center"><div class="qr-container" id="qr-output"><span style="color:var(--text-secondary);font-size:13px">'+t('qrEnterText')+'</span></div></div></div></div>';
+  autoSaveInput('qrcode-gen','qr-input');
+  let qrCanvas=null,qrGenerated=false;
+  window.generateQr=function(){
+    const input=document.getElementById('qr-input').value.trim();
+    const size=parseInt(document.getElementById('qr-size').value);
+    const level=document.getElementById('qr-level').value;
+    const output=document.getElementById('qr-output');
+    if(!input){output.innerHTML='<span style="color:var(--text-secondary);font-size:13px">'+t('qrEnterText')+'</span>';qrGenerated=false;return}
+    if(typeof qrcode==='undefined'){output.innerHTML='<span style="color:var(--error)">'+t('qrNotReady')+'</span>';qrGenerated=false;return}
+    output.innerHTML='<div class="loading-overlay"><div class="spinner"></div> '+t('qrGenerating')+'</div>';
+    try{var qr=qrcode(0,level);qr.addData(input);qr.make();
+      var count=qr.getModuleCount(),canvas=document.createElement('canvas'),padding=4,totalCells=count+padding*2;
+      var cellSize=Math.floor(size/totalCells),realSize=cellSize*totalCells;
+      canvas.width=realSize;canvas.height=realSize;var ctx=canvas.getContext('2d');
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,realSize,realSize);
+      for(var row=0;row<count;row++)for(var col=0;col<count;col++){ctx.fillStyle=qr.isDark(row,col)?'#000':'#fff';ctx.fillRect((col+padding)*cellSize,(row+padding)*cellSize,cellSize,cellSize)}
+      output.innerHTML='';output.appendChild(canvas);qrCanvas=canvas;qrGenerated=true;
+    }catch(e){output.innerHTML='<span style="color:var(--error)">'+t('qrFailed')+': '+e.message+'</span>';qrGenerated=false}
+  };
+  window.downloadQr=function(){if(!qrGenerated||!qrCanvas){showToast(t('qrMustGen'),'error');return}var link=document.createElement('a');link.download='qrcode.png';link.href=qrCanvas.toDataURL('image/png');link.click();showToast(t('qrDownloaded'),'success')};
+}
+
+/* ================================================================
+   Tool: SQL Formatter
+   ================================================================ */
+function renderSqlFormat(container){
+  container.innerHTML='<div class="tool-panel"><div class="tool-row"><div class="tool-col"><label>'+t('sqlInput')+'</label>'
+    +makeTextarea('sql-input',t('waiting'),8)
+    +'<div class="tool-actions"><button class="btn btn-primary" onclick="formatSql()">'+t('format')+'</button>'
+    +'<button class="btn btn-secondary" onclick="compressSql()">'+t('compress')+'</button>'
+    +'<select id="sql-dialect" style="width:auto;padding:4px 8px"><option value="mysql">MySQL</option><option value="postgresql">PostgreSQL</option><option value="sql">Standard SQL</option><option value="tsql">TSQL</option></select>'
+    +'<button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'sql-input\').value=\'\';saveState(\'sql-format\',\'sql-input\',\'\');updateInlineCounter(\'sql-input\');document.getElementById(\'sql-output\').innerHTML=\'<span style=color:var(--text-muted)>\'+t(\'waiting\')+\'</span>\'">'+t('clear')+'</button>'
+    +'</div></div></div><div class="tool-row"><div class="tool-col"><label>'+t('result')+'</label>'
+    +'<div class="result-box" id="sql-output"><span style="color:var(--text-muted)">'+t('waiting')+'</span></div>'
+    +'<div class="tool-actions"><button class="btn btn-sm btn-secondary" onclick="copyToClipboard(document.getElementById(\'sql-output\').textContent.trim())">📋 '+t('copyResult')+'</button></div>'
+    +'</div></div></div>';
+  autoSaveInput('sql-format','sql-input');
+}
+function formatSql(){const i=document.getElementById('sql-input').value.trim();const d=document.getElementById('sql-dialect').value;const o=document.getElementById('sql-output');if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}try{o.textContent=sqlFormatter.format(i,{language:d})}catch(e){o.innerHTML='<span style="color:var(--error)">'+t('sqlErr')+': '+e.message+'</span>'}}
+function compressSql(){const i=document.getElementById('sql-input').value.trim();const o=document.getElementById('sql-output');if(!i){o.innerHTML='<span style="color:var(--text-muted)">'+t('empty')+'</span>';return}try{o.textContent=i.replace(/\s+/g,' ').trim()}catch(e){o.innerHTML='<span style="color:var(--error)">'+t('sqlCompressErr')+': '+e.message+'</span>'}}
+
+/* ================================================================
+   Init
+   ================================================================ */
+(function init(){
+  initLang();
+  const hash=window.location.hash.replace('#','')||'json-format';
+  if(!TOOLS[hash]){window.location.hash='json-format';currentTool='json-format'}else currentTool=hash;
+  document.querySelectorAll('.pill-item').forEach(b=>b.classList.toggle('active',b.dataset.tool===currentTool));
+  renderCurrentTool();
+})();
+</script>
+</body>
+</html>
