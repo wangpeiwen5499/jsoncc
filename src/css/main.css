@@ -3,6 +3,9 @@
    明亮色系 · 悬浮丸导航 · 多语言支持 · 卡片风格
    ================================================================ */
 
+/* Screen-reader only utility */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
 /* ──── Design Tokens ──── */
 :root {
   --bg-page: #f3f4f7;
